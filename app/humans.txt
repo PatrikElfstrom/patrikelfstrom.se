@@ -1,0 +1,40 @@
+/* TEAM */
+Name: Patrik Elfström
+Title: Frontend Developer
+Twitter: patrikelfstrom
+Mail: me at patrikelfstrom.se
+Location: Gothenburg, Sweden
+
+/* SITE */
+Description: Patrik Elfström portfolio
+Updated: 2017-07-02
+Repository: https://github.com/PatrikElfstrom/patrikelfstrom.se
+
+# humanstxt.org/
+# The humans responsible & technology colophon
+
+
+                  NmhsydN
+               mdyyyysoooshm
+           NdhysyyyyysoooossyhdN
+       NmdyyyyssssssysssssssyyyyydmN
+    NdyssyyyyysssyydmNmdyyysyyyyyssshdN
+NmhysssssssssyyhmN       NmhyysssssssssyhmN
+hyysssssssyydm               mdysssssssyyyy
+hhhhyysyhmN                     Nmhyyyyyyyy
+hhhhyyym          NdhyhmN          Nyyyyyyy
+hyyssssN       mdyysssssyydmN      Nyyyyyyy
+hyyssssN      mhyyssssssyyyyd      Nyyyhhhh
+hhhhyyyN      dhhhhyyyyyyyyyd      Nhhhhhhh
+hhhhhhhN      dhhhhdddhhhyyyd      Nhhhhhhh
+hhhhhhhN      mdddmmmdhhhhhhd      Nhhhhhhh
+hhhhhhhN       NNmmmmdhhddmN       Nhhhhhhh
+hhhhhhhN           NmmmmN          Nhhhhhhh
+hhhhhhhN                        NNmddddhhhh
+hhhhhhhN                     Nmdddddddddddd
+NmddhhhN      NmN         NmmddddddddddmmN
+    NmdN      NmmmmNN NNmmddmmmmddddmNN
+              NmmmddddddddddmmmmmmN
+              mddhhhhdddddddmmN
+               NmdhhhddddmmN
+                   mddmN

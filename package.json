@@ -1,0 +1,60 @@
+{
+  "name": "patrikelfstrom.se",
+  "version": "1.0.0",
+  "description": "Patrik Elfström portfolio",
+  "main": "patrikelfstrom.js",
+  "scripts": {
+    "clean-dist": "rm -rf dist",
+    "clean-root": "rm -f dist",
+    "clean-scripts": "rm -rf dist/scripts",
+    "clean-styles": "rm -rf dist/styles",
+    "clean-images": "rm -rf dist/images",
+    "clean-fonts": "rm -rf dist/fonts",
+    "copy": "copy 'app/**/*.*' '!app/scripts/**/*.*' '!app/images/**/*.*' '!app/styles/**/*.*' dist",
+    "build-images": "node build/build-images.js",
+    "build-sw": "node build/build-sw.js",
+    "build-fonts": "node build/build-fonts.js",
+    "build-scripts": "node build/build-scripts.js",
+    "build-styles": "node build/build-styles.js",
+    "build": "node build/build.js",
+    "watch-scripts": "node build/watch-scripts.js",
+    "watch-styles": "node build/watch-styles.js",
+    "watch-images": "node build/watch-images.js",
+    "watch-root": "node build/watch-root.js",
+    "watch": "node build/watch.js"
+  },
+  "author": "Patrik Elfström <me@patrikelfstrom.se> (https://patrikelfstrom.se)",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.15.3",
+    "spdy": "^3.4.7"
+  },
+  "devDependencies": {
+    "autoprefixer": "^7.1.1",
+    "clean-css": "^4.1.4",
+    "copy": "^0.3.0",
+    "goog-webfont-dl": "^1.0.1",
+    "imagemin": "^5.3.1",
+    "imagemin-jpegoptim": "^5.1.0",
+    "imagemin-optipng": "^5.2.1",
+    "imagemin-svgo": "^5.2.2",
+    "node-sass": "^4.5.3",
+    "postcss": "^6.0.3",
+    "resolve": "^1.3.3",
+    "rollup": "^0.43.0",
+    "rollup-plugin-babel": "^2.7.1",
+    "shelljs": "^0.7.8",
+    "watch": "^1.0.2",
+    "workbox-build": "^1.0.1",
+    "workbox-google-analytics": "^1.0.0",
+    "workbox-sw": "^1.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PatrikElfstrom/patrikelfstrom.se.git"
+  },
+  "bugs": {
+    "url": "https://github.com/PatrikElfstrom/patrikelfstrom.se/issues"
+  },
+  "homepage": "https://github.com/PatrikElfstrom/patrikelfstrom.se#readme"
+}
