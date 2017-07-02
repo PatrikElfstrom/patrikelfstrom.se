@@ -2,10 +2,12 @@ const spdy = require('spdy');
 const express = require('express');
 const fs = require('fs');
 const http = require('http');
-const config = require('./config');
 const path = require('path');
+let config = require('./config');
 
 const app = express();
+config = process.env.NODE_ENV === 'production' ? config.prod : config.dev;
+
 const options = {
     key: fs.readFileSync(config.tls.key),
     cert: fs.readFileSync(config.tls.cert)
