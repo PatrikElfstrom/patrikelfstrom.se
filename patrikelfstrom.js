@@ -10,7 +10,8 @@ config = process.env.NODE_ENV === 'production' ? config.prod : config.dev;
 
 const options = {
     key: fs.readFileSync(config.tls.key),
-    cert: fs.readFileSync(config.tls.cert)
+    cert: fs.readFileSync(config.tls.cert),
+    ca: fs.readFileSync(config.tls.ca)
 };
 
 // Serve Index
