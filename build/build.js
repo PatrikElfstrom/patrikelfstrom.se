@@ -2,6 +2,7 @@ const shell = require('shelljs');
 
 const cleanDist    = 'npm run clean-dist';
 const copy         = 'npm run copy';
+const buildHTML    = 'npm run build-html';
 const buildStyles  = 'npm run build-styles';
 const buildScripts = 'npm run build-scripts';
 const buildImages  = 'npm run build-images';
@@ -23,6 +24,7 @@ shell.exec(cleanDist, {async:true}, () => {
 
     // When all promises has been resolved run buildSw
     Promise.all(promises).then(() => {
+        shellExec(buildHTML, {async:true});
         shell.exec(buildSw);
     });
 });

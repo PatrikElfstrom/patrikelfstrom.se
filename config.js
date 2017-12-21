@@ -13,7 +13,8 @@ module.exports = {
     dev: {
         tls: {
             key: '/etc/letsencrypt/live/dev.patrikelfstrom.se/privkey.pem',
-            cert: '/etc/letsencrypt/live/dev.patrikelfstrom.se/cert.pem'
+            cert: '/etc/letsencrypt/live/dev.patrikelfstrom.se/cert.pem',
+            ca: '/etc/letsencrypt/live/dev.patrikelfstrom.se/chain.pem'
         },
         port: {
             https: 8012,

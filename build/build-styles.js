@@ -4,6 +4,7 @@ const path          = require('path');
 const cleanCss      = require('clean-css');
 const sass          = require('node-sass');
 const autoprefixer  = require('autoprefixer');
+const cssnano       = require('cssnano');
 const postcss       = require('postcss');
 
 const head      = path.join(__dirname, '..', 'app', 'styles', 'head.scss');
@@ -25,7 +26,7 @@ sass.render({
         throw err;
     }
 
-    postcss([ autoprefixer ]).process(result.css).then(function (result) {
+    postcss([ autoprefixer, cssnano ]).process(result.css).then(function (result) {
         result.warnings().forEach(function (warn) {
             console.warn(warn.toString());
         });
