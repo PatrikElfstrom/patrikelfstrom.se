@@ -27,6 +27,7 @@
   "author": "Patrik Elfström <me@patrikelfstrom.se> (https://patrikelfstrom.se)",
   "license": "MIT",
   "dependencies": {
+    "compression": "^1.7.1",
     "express": "^4.15.3",
     "spdy": "^3.4.7"
   },

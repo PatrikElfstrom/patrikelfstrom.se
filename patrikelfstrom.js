@@ -1,5 +1,6 @@
 const spdy = require('spdy');
 const express = require('express');
+const compression = require('compression');
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
@@ -13,6 +14,9 @@ const options = {
     cert: fs.readFileSync(config.tls.cert),
     ca: fs.readFileSync(config.tls.ca)
 };
+
+// Enable compression
+app.use(compression());
 
 // Serve Index
 app.get(/([^/]*)(\/|\/index.html)$/, (req, res) => {
@@ -34,7 +38,9 @@ app.use('/', express.static(__dirname + '/dist', {
 }));
 
 app.use((req, res) => {
-    res.status(404).send("Sorry can't find that!");
+    const content = fs.readFileSync('./dist/404.html').toString('utf-8');
+
+    res.status(404).send(content);
 });
 
 spdy.createServer(options, app).listen(config.port.https, error => {
