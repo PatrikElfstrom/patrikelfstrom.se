@@ -68,14 +68,16 @@ app.use(function(req, res, next) {
     // Restrict where <form> contents may be submitted to
     res.setHeader('Content-Security-Policy',
               "default-src 'none'; "
+            + "base-uri 'none'; "
+            + "form-action 'none'; "
+            + "frame-ancestors 'none'; "
             + "connect-src 'self'; "
-            + "script-src 'self' '"+scripthash+"' https://www.google-analytics.com; "
+            + "manifest-src 'self'; "
+            + "worker-src 'self'; "
+            + "script-src 'self' https://www.google-analytics.com; "
             + "style-src 'self' '"+stylehash+"'; "
             + "img-src 'self' https://www.google-analytics.com; "
-            + "font-src https://fonts.gstatic.com; "
-            + "frame-ancestors 'none'; "
-            + "base-uri 'none'; "
-            + "form-action 'none';");
+            + "font-src https://fonts.gstatic.com;");
 
     // Only connect to this site via HTTPS for the six months
     res.setHeader('Strict-Transport-Security', 'max-age=15768000; includeSubDomains');
@@ -99,7 +101,10 @@ app.get('/sw.js', function(req, res, next) {
 
 // Serve Static Files
 app.use('/', express.static(__dirname + '/dist', {
-    maxage: '1y'
+    maxage: '1y',
+    setHeaders: res => {
+        res.removeHeader('Content-Security-Policy')
+    }
 }));
 
 app.use((req, res) => {

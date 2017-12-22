@@ -12,7 +12,7 @@ const entries = [
 let cache;
 entries.forEach(entry => {
     rollup.rollup({
-        entry: `${entry}`,
+        input: `${entry}`,
         cache,
         plugins: [
             // hash(),
@@ -23,16 +23,16 @@ entries.forEach(entry => {
         const destinationPath = 'dist/scripts/' + entry.match(/[a-z.]+$/);
         cache = bundle;
 
-        const { code, map } = bundle.generate({
+        bundle.generate({
             format: 'iife',
-            dest: destinationPath
-        });
-
-        buildHash(code, '.scripthash');
+            file: destinationPath
+        }).then(data => {
+            buildHash(data.code, '.scripthash');
+        }).catch(error => console.warn(error));
 
         bundle.write({
             format: 'iife',
-            dest: destinationPath
+            file: destinationPath
         });
 
     }).catch(error => console.warn(error));

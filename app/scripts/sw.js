@@ -1,5 +1,5 @@
-importScripts('/scripts/workbox-sw.prod.v1.0.1.js');
-importScripts('/scripts/workbox-google-analytics.prod.v1.0.0.js');
+importScripts('/scripts/workbox-sw.prod.v2.1.2.js');
+importScripts('/scripts/workbox-google-analytics.prod.v2.1.1.js');
 
 workbox.googleAnalytics.initialize();
 
