@@ -9,14 +9,79 @@ let config = require('./config');
 const app = express();
 config = process.env.NODE_ENV === 'production' ? config.prod : config.dev;
 
+const ciphers = [
+        "ECDHE-ECDSA-AES256-GCM-SHA384",
+        "ECDHE-RSA-AES256-GCM-SHA384",
+        "ECDHE-ECDSA-CHACHA20-POLY1305",
+        "ECDHE-RSA-CHACHA20-POLY1305",
+        "ECDHE-ECDSA-AES128-GCM-SHA256",
+        "ECDHE-RSA-AES128-GCM-SHA256",
+        "ECDHE-ECDSA-AES256-SHA384",
+        "ECDHE-RSA-AES256-SHA384",
+        "ECDHE-ECDSA-AES128-SHA256",
+        "ECDHE-RSA-AES128-SHA256",
+        "!aNULL",
+        "!eNULL",
+        "!EXPORT",
+        "!DES",
+        "!RC4",
+        "!3DES",
+        "!MD5",
+        "!PSK"
+    ].join(':');
+
 const options = {
     key: fs.readFileSync(config.tls.key),
     cert: fs.readFileSync(config.tls.cert),
-    ca: fs.readFileSync(config.tls.ca)
+    ca: fs.readFileSync(config.tls.ca),
+    ciphers: ciphers,
+    honorCipherOrder: true,
+    secureOptions: 'tlsv12'
 };
+
+const stylehashFile = path.join(__dirname, '.stylehash');
+const stylehash = 'sha256-' + fs.readFileSync(stylehashFile);
+const scripthashFile = path.join(__dirname, '.scripthash');
+const scripthash = 'sha256-' + fs.readFileSync(scripthashFile);
 
 // Enable compression
 app.use(compression());
+
+app.use(function(req, res, next) {
+    // Block site from being framed with X-Frame-Options
+    res.setHeader('X-Frame-Options', 'Deny');
+
+    // Block pages from loading when they detect reflected XSS attacks
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+
+    // Prevent browsers from incorrectly detecting non-scripts as scripts
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+
+    // Deny access as default
+    // Allow URLs from same origin to be loaded using script interfaces
+    // Only load scripts from same origin and www.google-analytics.com (added hash for future CSP 3 support)
+    // Only allow styles with hash
+    // Only load images from same origin and www.google-analytics.com
+    // Only load fonts from from fonts.gstatic.com
+    // Disable the loading of any resources and disable framing
+    // Disable use of <base>
+    // Restrict where <form> contents may be submitted to
+    res.setHeader('Content-Security-Policy',
+              "default-src 'none'; "
+            + "connect-src 'self'; "
+            + "script-src 'self' '"+scripthash+"' https://www.google-analytics.com; "
+            + "style-src 'self' '"+stylehash+"'; "
+            + "img-src 'self' https://www.google-analytics.com; "
+            + "font-src https://fonts.gstatic.com; "
+            + "frame-ancestors 'none'; "
+            + "base-uri 'none'; "
+            + "form-action 'none';");
+
+    // Only connect to this site via HTTPS for the six months
+    res.setHeader('Strict-Transport-Security', 'max-age=15768000; includeSubDomains');
+
+    next();
+});
 
 // Serve Index
 app.get(/([^/]*)(\/|\/index.html)$/, (req, res) => {

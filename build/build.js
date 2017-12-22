@@ -6,7 +6,6 @@ const buildHTML    = 'npm run build-html';
 const buildStyles  = 'npm run build-styles';
 const buildScripts = 'npm run build-scripts';
 const buildImages  = 'npm run build-images';
-const buildFonts   = 'npm run build-fonts';
 const buildSw      = 'npm run build-sw';
 
 var promises = [];
@@ -20,7 +19,6 @@ shell.exec(cleanDist, {async:true}, () => {
     promises.push(shellExec(buildStyles, {async:true}));
     promises.push(shellExec(buildScripts, {async:true}));
     promises.push(shellExec(buildImages, {async:true}));
-    promises.push(shellExec(buildFonts, {async:true}));
 
     // When all promises has been resolved run buildSw
     Promise.all(promises).then(() => {

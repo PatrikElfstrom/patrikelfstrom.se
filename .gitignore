@@ -1,3 +1,5 @@
 dist/
 node_modules/
 *.sublime*
+.scripthash
+.stylehash
