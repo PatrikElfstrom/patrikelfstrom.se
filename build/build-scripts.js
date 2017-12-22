@@ -1,8 +1,9 @@
 const rollup    = require('rollup');
 // const hash      = require('./plugins/hash').findHashes;
 const babel     = require('rollup-plugin-babel');
+const uglify    = require('rollup-plugin-uglify');
+const uglifyES  = require('uglify-es');
 const buildHash = require('./build-hash');
-
 
 const entries = [
     'app/scripts/main.js'
@@ -15,6 +16,7 @@ entries.forEach(entry => {
         cache,
         plugins: [
             // hash(),
+            uglify({}, uglifyES.minify),
             babel()
         ]
     }).then(bundle => {
