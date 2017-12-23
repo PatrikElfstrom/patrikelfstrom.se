@@ -45,7 +45,9 @@ const scripthashFile = path.join(__dirname, '.scripthash');
 const scripthash = 'sha256-' + fs.readFileSync(scripthashFile);
 
 // Enable compression
-app.use(compression());
+app.use(compression({
+    threshold: 0
+}));
 
 app.use(function(req, res, next) {
     // Block site from being framed with X-Frame-Options

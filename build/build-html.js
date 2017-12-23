@@ -12,7 +12,8 @@ fs.readFile(index, 'utf8', (err, data) => {
         collapseInlineTagWhitespace: true,
         collapseWhitespace: true,
         sortAttributes: true,
-        sortClassName: true
+        sortClassName: true,
+        removeAttributeQuotes: true
     });
 
     fs.writeFile(index, data, 'utf8', () => {
