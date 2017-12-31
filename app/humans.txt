@@ -1,6 +1,6 @@
 /* TEAM */
 Name: Patrik Elfström
-Title: Frontend Developer
+Title: Front-end Developer
 Twitter: patrikelfstrom
 Mail: me at patrikelfstrom.se
 Location: Gothenburg, Sweden

@@ -88,7 +88,7 @@ app.use(function(req, res, next) {
 
 // Serve Index
 app.get(/([^/]*)(\/|\/index.html)$/, (req, res) => {
-    const content = fs.readFileSync('./dist/index.html').toString('utf-8');
+    const content = fs.readFileSync(path.join(__dirname, 'dist', 'index.html')).toString('utf-8');
 
     res.status(200).send(content);
 });
