@@ -1,27 +1,30 @@
 const fs            = require('fs');
 const path          = require('path');
+const glob          = require('glob');
 const minify        = require('html-minifier').minify;
 const handlebars    = require('handlebars');
 const config        = require('../config');
 
-const index = path.join(__dirname, '..', 'dist', 'index.html');
+glob("dist/**/*.html", function (er, files) {
+    files.forEach(file => {
+        fs.readFile(file, 'utf8', (err, data) => {
+            if (err) throw err;
 
-fs.readFile(index, 'utf8', (err, data) => {
-    if (err) throw err;
+            const template = handlebars.compile(data);
+            data = template(config);
 
-    const template = handlebars.compile(data);
-    data = template(config);
+            data = minify(data, {
+                collapseBooleanAttributes: true,
+                collapseInlineTagWhitespace: true,
+                collapseWhitespace: true,
+                sortAttributes: true,
+                sortClassName: true,
+                removeAttributeQuotes: true
+            });
 
-    data = minify(data, {
-        collapseBooleanAttributes: true,
-        collapseInlineTagWhitespace: true,
-        collapseWhitespace: true,
-        sortAttributes: true,
-        sortClassName: true,
-        removeAttributeQuotes: true
+            fs.writeFile(file, data, 'utf8', () => {
+                console.log('Transformed ' + file);
+            });
+        });
     });
-
-    fs.writeFile(index, data, 'utf8', () => {
-        console.log('Minified index.html');
-    });
-});
+})
