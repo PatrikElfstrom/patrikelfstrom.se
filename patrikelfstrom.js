@@ -4,10 +4,9 @@ const compression = require('compression');
 const fs = require('fs');
 const http = require('http');
 const path = require('path');
-let config = require('./config');
+const config = require('./config');
 
 const app = express();
-config = process.env.NODE_ENV === 'production' ? config.prod : config.dev;
 
 const ciphers = [
         "ECDHE-ECDSA-AES256-GCM-SHA384",
