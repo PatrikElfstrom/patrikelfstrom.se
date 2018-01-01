@@ -3,7 +3,6 @@ const rollup    = require('rollup');
 const babel     = require('rollup-plugin-babel');
 const uglify    = require('rollup-plugin-uglify');
 const uglifyES  = require('uglify-es');
-const buildHash = require('./build-hash');
 
 const entries = [
     'app/scripts/main.js'
@@ -26,8 +25,6 @@ entries.forEach(entry => {
         bundle.generate({
             format: 'iife',
             file: destinationPath
-        }).then(data => {
-            buildHash(data.code, '.scripthash');
         }).catch(error => console.warn(error));
 
         bundle.write({

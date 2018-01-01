@@ -5,7 +5,6 @@ const cleanCss      = require('clean-css');
 const sass          = require('node-sass');
 const autoprefixer  = require('autoprefixer');
 const postcss       = require('postcss');
-const buildHash     = require('./build-hash');
 
 const headSCSSFile  = path.join(__dirname, '..', 'app', 'styles', 'head.scss');
 const indexHTMLFile = path.join(__dirname, '..', 'dist', 'index.html');
@@ -24,8 +23,6 @@ sass.render({
         let output = result.css;
 
         output = new cleanCss().minify(output).styles;
-
-        buildHash(output, '.stylehash');
 
         fs.readFile(indexHTMLFile, 'utf8', (err, data) => {
             if (err) throw err;

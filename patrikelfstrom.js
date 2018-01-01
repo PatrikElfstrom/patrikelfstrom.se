@@ -1,10 +1,12 @@
-const spdy = require('spdy');
-const express = require('express');
-const compression = require('compression');
-const fs = require('fs');
-const http = require('http');
-const path = require('path');
-const config = require('./config');
+const spdy          = require('spdy');
+const express       = require('express');
+const compression   = require('compression');
+const fs            = require('fs');
+const http          = require('http');
+const path          = require('path');
+const bodyParser    = require('body-parser');
+const uuid          = require('uuid');
+const config        = require('./config');
 
 const app = express();
 
@@ -38,15 +40,19 @@ const options = {
     secureOptions: 'tlsv12'
 };
 
-const stylehashFile = path.join(__dirname, '.stylehash');
-const stylehash = 'sha256-' + fs.readFileSync(stylehashFile);
-const scripthashFile = path.join(__dirname, '.scripthash');
-const scripthash = 'sha256-' + fs.readFileSync(scripthashFile);
-
 // Enable compression
 app.use(compression({
     threshold: 0
 }));
+
+// Generate nonce for CSP
+app.use((req, res, next) => {
+  res.locals.nonce = uuid.v4();
+  next();
+});
+
+// Remove x-powered-by header
+app.disable('x-powered-by')
 
 app.use(function(req, res, next) {
     // Block site from being framed with X-Frame-Options
@@ -75,20 +81,59 @@ app.use(function(req, res, next) {
             + "connect-src 'self'; "
             + "manifest-src 'self'; "
             + "worker-src 'self'; "
+            + "report-uri /report-csp-violation; "
+            + "report-to /report-csp-violation; "
             + "script-src 'self' https://www.google-analytics.com; "
-            + "style-src 'self' '"+stylehash+"'; "
+            + "style-src 'self' 'nonce-"+res.locals.nonce+"'; "
             + "img-src 'self' https://www.google-analytics.com; "
             + "font-src https://fonts.gstatic.com;");
 
     // Only connect to this site via HTTPS for the six months
     res.setHeader('Strict-Transport-Security', 'max-age=15768000; includeSubDomains');
 
+    // Enforce the Certificate Transparency policy
+    res.setHeader('Expect-CT', 'enforce, max-age=30, report-uri="https://'+config.host+'/report-ect-violation"');
+
     next();
+});
+
+// Parse CSP report violation
+app.use(bodyParser.json({
+    type: [
+        'json',
+        'application/csp-report',
+        'application/expect-ct-report+json'
+    ]
+}));
+
+// Catch CSP report violation
+app.post('/report-csp-violation', (req, res) => {
+    if(req.body) {
+        console.log('CSP Violation: ', req.body);
+    } else {
+        console.log('CSP Violation: No data received!');
+    }
+
+    res.status(204).end();
+});
+
+// Catch Expect-CT report violation
+app.post('/report-ect-violation', (req, res) => {
+    if(req.body) {
+        console.log('Expect-CT Violation: ', req.body);
+    } else {
+        console.log('Expect-CT Violation: No data received!');
+    }
+
+    res.status(204).end();
 });
 
 // Serve Index
 app.get(/([^/]*)(\/|\/index.html)$/, (req, res) => {
-    const content = fs.readFileSync(path.join(__dirname, 'dist', 'index.html')).toString('utf-8');
+    let content = fs.readFileSync(path.join(__dirname, 'dist', 'index.html')).toString('utf-8');
+
+    // Inject nonce
+    content = content.replace('[nonce]', res.locals.nonce);
 
     res.status(200).send(content);
 });
@@ -109,7 +154,10 @@ app.use('/', express.static(__dirname + '/dist', {
 }));
 
 app.use((req, res) => {
-    const content = fs.readFileSync('./dist/404.html').toString('utf-8');
+    let content = fs.readFileSync('./dist/404.html').toString('utf-8');
+
+    // Inject nonce
+    content = content.replace('[nonce]', res.locals.nonce);
 
     res.status(404).send(content);
 });
