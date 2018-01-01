@@ -94,6 +94,9 @@ app.use(function(req, res, next) {
     // Enforce the Certificate Transparency policy
     res.setHeader('Expect-CT', 'enforce, max-age=30, report-uri="https://'+config.host+'/report-ect-violation"');
 
+    // Don't send full url when cross-origin and send nothing when scheme downgrading
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+
     next();
 });
 
