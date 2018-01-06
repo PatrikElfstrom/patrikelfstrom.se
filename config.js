@@ -85,7 +85,7 @@ module.exports = (() => {
                 "@type": "WebPage",
                 "@id": "https://patrikelfstrom.se",
                 "name": "Patrik Elfström",
-                "description": "Patrik Elfström - Web Developer",
+                "description": "Patrik Elfström is a Web Developer in Gothenburg, Sweden currently working as a Front-end Developer focusing on user experience and performance.",
                 "primaryImageOfPage": "https://patrikelfstrom.se/images/icons/patrikelfstrom-logo-1200x1200.png"
             }
         }
