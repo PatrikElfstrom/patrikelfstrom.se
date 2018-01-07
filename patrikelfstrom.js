@@ -89,7 +89,7 @@ app.use(function(req, res, next) {
             + "font-src https://fonts.gstatic.com;");
 
     // Only connect to this site via HTTPS for the six months
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    res.setHeader('Strict-Transport-Security', 'max-age=15768000; includeSubDomains');
 
     // Enforce the Certificate Transparency policy
     res.setHeader('Expect-CT', 'enforce, max-age=30, report-uri="https://'+config.host+'/report-ect-violation"');
