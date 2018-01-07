@@ -109,6 +109,16 @@ app.use(bodyParser.json({
     ]
 }));
 
+// Redirect all to config.host
+app.use((req, res, next) => {
+    if(req.headers.host !== config.host) {
+        res.writeHead(301, { "Location": 'https://' + config.host + req.url });
+        res.end();
+    }
+
+    next();
+});
+
 // Catch CSP report violation
 app.post('/report-csp-violation', (req, res) => {
     if(req.body) {
@@ -175,7 +185,7 @@ spdy.createServer(options, app).listen(config.port.https, error => {
 });
 
 http.createServer((req, res) => {
-    res.writeHead(301, { "Location": 'https://' + req.headers.host + req.url });
+    res.writeHead(301, { "Location": 'https://' + config.host + req.url });
     res.end();
 }).listen(config.port.http, error => {
     if (error) {
