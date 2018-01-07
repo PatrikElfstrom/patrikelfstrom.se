@@ -166,6 +166,7 @@ app.use('/', express.static(__dirname + '/dist', {
     }
 }));
 
+// Return 404
 app.use((req, res) => {
     let content = fs.readFileSync('./dist/404.html').toString('utf-8');
 
@@ -173,6 +174,16 @@ app.use((req, res) => {
     content = content.replace('[nonce]', res.locals.nonce);
 
     res.status(404).send(content);
+});
+
+// Return 500
+app.use((err, req, res, next) => {
+    let content = fs.readFileSync('./dist/500.html').toString('utf-8');
+
+    // Inject nonce
+    content = content.replace('[nonce]', res.locals.nonce);
+
+    res.status(500).send(content);
 });
 
 spdy.createServer(options, app).listen(config.port.https, error => {
