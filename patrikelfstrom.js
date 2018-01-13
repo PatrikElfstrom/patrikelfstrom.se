@@ -1,11 +1,11 @@
 const spdy          = require('spdy');
 const express       = require('express');
-const compression   = require('compression');
 const fs            = require('fs');
 const http          = require('http');
 const path          = require('path');
 const bodyParser    = require('body-parser');
 const uuid          = require('uuid');
+const shrinkRay     = require('shrink-ray');
 const config        = require('./config');
 
 const app = express();
@@ -41,9 +41,7 @@ const options = {
 };
 
 // Enable compression
-app.use(compression({
-    threshold: 0
-}));
+app.use(shrinkRay());
 
 // Generate nonce for CSP
 app.use((req, res, next) => {
