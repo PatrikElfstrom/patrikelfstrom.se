@@ -1,11 +1,12 @@
 const watch     = require('watch');
 const path      = require('path');
 const shell     = require('shelljs');
+const config    = require('../config');
 
 const cleanScripts  = 'npm run clean-scripts';
 const buildScripts  = 'npm run build-scripts';
 const buildSw       = 'npm run build-sw';
-const scriptsSource = path.join(__dirname, '..', 'app', 'scripts');
+const scriptsSource = path.join(config.app, 'scripts');
 const files         = ['*.js'];
 
 watch.createMonitor(scriptsSource, {

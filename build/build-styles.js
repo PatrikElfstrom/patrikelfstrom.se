@@ -5,9 +5,10 @@ const cleanCss      = require('clean-css');
 const sass          = require('node-sass');
 const autoprefixer  = require('autoprefixer');
 const postcss       = require('postcss');
+const config        = require('../config');
 
-const headSCSSFile  = path.join(__dirname, '..', 'app', 'styles', 'head.scss');
-const indexHTMLFile = path.join(__dirname, '..', 'dist', 'index.html');
+const headSCSSFile  = path.join(config.app, 'styles', 'head.scss');
+const indexHTMLFile = path.join(config.public, 'index.html');
 
 sass.render({
     file: headSCSSFile

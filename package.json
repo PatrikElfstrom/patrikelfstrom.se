@@ -16,11 +16,15 @@
     "build-styles": "node build/build-styles.js",
     "build-html": "node build/build-html.js",
     "build": "node build/build.js",
+    "build-production": "NODE_ENV=production node build/build.js",
     "watch-scripts": "node build/watch-scripts.js",
     "watch-styles": "node build/watch-styles.js",
     "watch-images": "node build/watch-images.js",
     "watch-root": "node build/watch-root.js",
-    "watch": "node build/watch.js"
+    "watch": "node build/watch.js",
+    "deploy": "npm run deploy-develop",
+    "deploy-develop": "npm run build; firebase deploy -P develop",
+    "deploy-production": "npm run build-production; firebase deploy -P production"
   },
   "author": "Patrik Elfström <me@patrikelfstrom.se> (https://patrikelfstrom.se)",
   "license": "MIT",

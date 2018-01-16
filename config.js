@@ -1,6 +1,17 @@
 module.exports = (() => {
+    const path = require('path');
+
+    const rootDirectory = path.resolve('/', __dirname);
+    const publicDirectory = path.join(rootDirectory, 'dist');
+    const sourceDirectory = path.join(rootDirectory, 'app');
 
     let config = {
+        root: rootDirectory,
+        app: sourceDirectory,
+        public: publicDirectory
+    };
+
+    let environmentConfig = {
         prod: {
             host: 'patrikelfstrom.se',
             tls: {
@@ -91,9 +102,9 @@ module.exports = (() => {
         }
     };
 
-    config = process.env.NODE_ENV === 'production' ? config.prod : config.dev
+    environmentConfig = process.env.NODE_ENV === 'production' ? environmentConfig.prod : environmentConfig.dev;
 
-    Object.assign(config, structuredData);
+    Object.assign(config, environmentConfig, structuredData);
 
     return config;
 })();

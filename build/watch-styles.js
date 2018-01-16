@@ -1,12 +1,13 @@
 const watch     = require('watch');
 const path      = require('path');
 const shell     = require('shelljs');
+const config    = require('../config');
 
 const cleanStyles   = 'npm run clean-styles';
 const buildStyles   = 'npm run build-styles';
 const buildSw       = 'npm run build-sw';
 const copy          = 'npm run copy';
-const stylesSource  = path.join(__dirname, '..', 'app', 'styles');
+const stylesSource  = path.join(config.app, 'styles');
 const files         = ['*.scss'];
 
 watch.createMonitor(stylesSource, {

@@ -1,7 +1,9 @@
-const imagemin = require('imagemin');
+const imagemin          = require('imagemin');
 const imageminJpegoptim = require('imagemin-jpegoptim');
-const imageminOptipng = require('imagemin-optipng');
-const imageminSvgo = require('imagemin-svgo');
+const imageminOptipng   = require('imagemin-optipng');
+const imageminSvgo      = require('imagemin-svgo');
+const path              = require('path');
+const config            = require('../config');
 
 const options = {
     plugins: [
@@ -22,14 +24,14 @@ const options = {
     ]
 };
 
-imagemin(['app/images/*.{jpg,png,svg}'], 'dist/images', options).then(files => {
-    console.log('app/images has been transformed');
+imagemin([path.join(config.app, 'images', '*.{jpg,png,svg}')], path.join(config.public, 'images'), options).then(files => {
+    console.log('images has been transformed');
 }).catch(err => {
     console.log(err)
 });
 
-imagemin(['app/images/icons/*.{jpg,png,svg,ico}'], 'dist/images/icons', options).then(files => {
-    console.log('app/images/icons has been transformed');
+imagemin([path.join(config.app, 'images', 'icons', '*.{jpg,png,svg,ico}')], path.join(config.public, 'images', 'icons'), options).then(files => {
+    console.log('images/icons has been transformed');
 }).catch(err => {
     console.log(err)
 });

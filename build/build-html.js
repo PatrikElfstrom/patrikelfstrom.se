@@ -9,7 +9,7 @@ Handlebars.registerHelper('json', function(context) {
     return JSON.stringify(context);
 });
 
-glob("dist/**/*.html", function (er, files) {
+glob(path.join(config.public, '**/*.html'), function (er, files) {
     files.forEach(file => {
         fs.readFile(file, 'utf8', (err, data) => {
             if (err) throw err;

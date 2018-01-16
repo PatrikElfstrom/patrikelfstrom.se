@@ -1,11 +1,12 @@
 const rollup    = require('rollup');
-// const hash      = require('./plugins/hash').findHashes;
 const babel     = require('rollup-plugin-babel');
 const uglify    = require('rollup-plugin-uglify');
 const uglifyES  = require('uglify-es');
+const path      = require('path');
+const config    = require('../config');
 
 const entries = [
-    'app/scripts/main.js'
+    path.join(config.app, 'scripts', 'main.js')
 ];
 
 let cache;
@@ -14,12 +15,12 @@ entries.forEach(entry => {
         input: `${entry}`,
         cache,
         plugins: [
-            // hash(),
             uglify({}, uglifyES.minify),
             babel()
         ]
     }).then(bundle => {
-        const destinationPath = 'dist/scripts/' + entry.match(/[a-z.]+$/);
+        const filename = entry.match(/[a-z.]+$/)[0];
+        const destinationPath = path.join(config.public, 'scripts', filename);
         cache = bundle;
 
         bundle.generate({

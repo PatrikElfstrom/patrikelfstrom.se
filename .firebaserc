@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "develop": "patrikelfstrom-dev",
+    "production": "patrikelfstrom-prod"
+  }
+}

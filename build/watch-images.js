@@ -1,11 +1,12 @@
 const watch     = require('watch');
 const path      = require('path');
 const shell     = require('shelljs');
+const config    = require('../config');
 
 const cleanImages  = 'npm run clean-images';
 const buildImages  = 'npm run build-images';
 const buildSw      = 'npm run build-sw';
-const imagesSource = path.join(__dirname, '..', 'app', 'images');
+const imagesSource = path.join(config.app, 'images');
 const files        = ['*.{jpg,png,svg,ico}'];
 
 watch.createMonitor(imagesSource, {

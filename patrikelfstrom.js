@@ -152,7 +152,12 @@ app.get(/([^/]*)(\/|\/index.html)$/, (req, res) => {
 // Serve Service Worker
 app.get('/sw.js', function(req, res, next) {
     res.set({'cache-control': 'public, max-age=7200'});
-    req.url = path.join('/scripts', 'sw.js');
+    next();
+});
+
+// Serve manifest.webmanifest
+app.get('/manifest.json', function(req, res, next) {
+    req.url = path.join('/', 'manifest.webmanifest');
     next();
 });
 
