@@ -37,6 +37,18 @@
             "key": "Expect-CT",
             "value": "enforce, max-age=30, report-uri=\"https://patrikelfstrom.report-uri.com/r/d/ct/enforce\""
         }]
+    },{
+        "source" : "**",
+        "headers" : [{
+            "key" : "Cache-Control",
+            "value" : "max-age=2629743"
+        }]
+    },{
+        "source" : "/sw.js",
+        "headers" : [{
+            "key" : "Cache-Control",
+            "value" : "max-age=604800"
+        }]
     }]
   }
 }
