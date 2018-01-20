@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="en">
+<html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ structuredData.mainEntityOfPage.name }}</title>
     <meta name="description" content="{{ structuredData.mainEntityOfPage.description }}">
@@ -15,7 +14,7 @@
     <meta name="twitter:card" content="summary">
     <link rel="canonical" href="https://{{ host }}">
     <link rel="author" href="humans.txt">
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.webmanifest">
     <meta name="msapplication-config" content="/browserconfig.xml">
     <link rel="apple-touch-icon" href="/images/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/images/icons/favicon-32x32.png">
@@ -42,6 +41,6 @@
             Web Developer
         </small>
     </footer>
-    <script defer src="/scripts/main.js"></script>
+    <script type="text/javascript" defer src="/scripts/main.js"></script>
 </body>
 </html>

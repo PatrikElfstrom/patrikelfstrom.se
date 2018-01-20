@@ -22,6 +22,18 @@
             "key": "X-Content-Type-Options",
             "value": "nosniff"
         },{
+            "key": "Referrer-Policy",
+            "value": "strict-origin-when-cross-origin"
+        },{
+            "key": "Expect-CT",
+            "value": "enforce, max-age=30, report-uri=\"https://patrikelfstrom.report-uri.com/r/d/ct/enforce\""
+        }]
+    },{
+        "source": "/index.html",
+        "headers": [{
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+        },{
             "key": "X-Frame-Options",
             "value": "Deny"
         },{
@@ -41,13 +53,19 @@
         "source" : "**",
         "headers" : [{
             "key" : "Cache-Control",
-            "value" : "max-age=2629743"
+            "value" : "max-age=31536000, immutable"
+        }]
+    },{
+        "source" : "/index.html",
+        "headers" : [{
+            "key" : "Cache-Control",
+            "value" : "max-age=180, immutable"
         }]
     },{
         "source" : "/sw.js",
         "headers" : [{
             "key" : "Cache-Control",
-            "value" : "max-age=604800"
+            "value" : "max-age=604800, immutable"
         }]
     }]
   }

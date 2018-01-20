@@ -54,6 +54,7 @@ This is a compilation of recommended performace, security and usability stuff to
 * Add X-XSS-Protection header
 * Add Content-Security-Policy header
 * Add Referrer-Policy header
+* Set Cache-Control header
 
 ## TLS ciphers
 For services that don't need backward compatibility, the parameters below provide a higher level of security. This configuration is compatible with Firefox 27, Chrome 30, IE 11 on Windows 7, Edge, Opera 17, Safari 9, Android 5.0, and Java 8.
@@ -73,6 +74,7 @@ Use TLS version 1.2
 
 ### More Info
 * https://wiki.mozilla.org/Security/Server_Side_TLS#Recommended_configurations
+* https://mozilla.github.io/server-side-tls/ssl-config-generator/
 
 ## HTTP Headers
 There are some headers that don't need to be sent for non-HTML resources. Sending these does not provide any value to users and just increases header bloat.
@@ -175,3 +177,18 @@ Send a full URL when performing a same-origin request, only send the origin of t
 
 #### More Info
 * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
+
+### Cache-Control
+The Cache-Control general-header field is used to specify directives for caching mechanisms in both requests and responses. Caching directives are unidirectional, meaning that a given directive in a request is not implying that the same directive is to be given in the response.
+
+#### Recommended Value
+HTML files should be served with a low max-age (under 3 minutes) or `no-cache`:  
+`Cache-Control: max-age=180, immutable`
+
+Other resources should be served with a long max-age:  
+`Cache-Control: max-age=31536000, immutable`
+
+`immutable` indicates that the response body will not change over time. The resource, if unexpired, is unchanged on the server and therefore the client should not send a conditional revalidation for it (e.g. If-None-Match or If-Modified-Since) to check for updates, even when the user explicitly refreshes the page.
+
+#### More Info
+* https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
