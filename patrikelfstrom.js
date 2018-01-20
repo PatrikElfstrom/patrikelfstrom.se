@@ -50,9 +50,22 @@ app.use((req, res, next) => {
 });
 
 // Remove x-powered-by header
-app.disable('x-powered-by')
+app.disable('x-powered-by');
 
 app.use(function(req, res, next) {
+    // Prevent browsers from incorrectly detecting non-scripts as scripts
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+
+    // Enforce the Certificate Transparency policy
+    res.setHeader('Expect-CT', 'enforce, max-age=30, report-uri="https://'+config.host+'/report-ect-violation"');
+
+    // Don't send full url when cross-origin and send nothing when scheme downgrading
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+    next();
+});
+
+app.use(/([^/]*)(\/|\/index.html)$/, function(req, res, next) {
     // Block site from being framed with X-Frame-Options
     res.setHeader('X-Frame-Options', 'Deny');
 
@@ -94,6 +107,8 @@ app.use(function(req, res, next) {
 
     // Don't send full url when cross-origin and send nothing when scheme downgrading
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+    res.setHeader({'Cache-Control': 'max-age=180, immutable'});
 
     next();
 });
@@ -151,7 +166,7 @@ app.get(/([^/]*)(\/|\/index.html)$/, (req, res) => {
 
 // Serve Service Worker
 app.get('/sw.js', function(req, res, next) {
-    res.set({'cache-control': 'public, max-age=7200'});
+    res.set({'cache-control': 'public, max-age=0, immutable'});
     next();
 });
 
