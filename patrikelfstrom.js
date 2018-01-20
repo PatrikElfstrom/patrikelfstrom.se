@@ -108,8 +108,14 @@ app.use(/([^/]*)(\/|\/index.html)$/, function(req, res, next) {
     // Don't send full url when cross-origin and send nothing when scheme downgrading
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-    res.setHeader({'Cache-Control': 'max-age=180, immutable'});
+    res.setHeader('Cache-Control', 'max-age=180, immutable');
 
+    next();
+});
+
+app.use(/.*\.js$/, function(req, res, next) {
+    // Javascript should be served as text/javascript and not application/javascript
+    res.setHeader('Content-Type', 'text/javascript');
     next();
 });
 

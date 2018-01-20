@@ -27,9 +27,12 @@
         },{
             "key": "Expect-CT",
             "value": "enforce, max-age=30, report-uri=\"https://patrikelfstrom.report-uri.com/r/d/ct/enforce\""
+        },{
+            "key" : "Cache-Control",
+            "value" : "public, max-age=31536000, immutable"
         }]
     },{
-        "source": "([^\/]*)(\/|\/index.html)$",
+        "source": "/",
         "headers": [{
             "key": "X-Content-Type-Options",
             "value": "nosniff"
@@ -48,16 +51,7 @@
         },{
             "key": "Expect-CT",
             "value": "enforce, max-age=30, report-uri=\"https://patrikelfstrom.report-uri.com/r/d/ct/enforce\""
-        }]
-    },{
-        "source" : "**",
-        "headers" : [{
-            "key" : "Cache-Control",
-            "value" : "public, max-age=31536000, immutable"
-        }]
-    },{
-        "source" : "([^\/]*)(\/|\/index.html)$",
-        "headers" : [{
+        },{
             "key" : "Cache-Control",
             "value" : "public, max-age=180, immutable"
         }]
@@ -66,6 +60,12 @@
         "headers" : [{
             "key" : "Cache-Control",
             "value" : "public, max-age=0, immutable"
+        }]
+    },{
+        "source" : "**/*.@(js)",
+        "headers" : [{
+            "key" : "Content-Type",
+            "value" : "text/javascript"
         }]
     }]
   }
