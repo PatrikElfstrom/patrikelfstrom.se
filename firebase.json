@@ -65,7 +65,7 @@
         "source" : "**/*.@(js)",
         "headers" : [{
             "key" : "Content-Type",
-            "value" : "text/javascript"
+            "value" : "text/javascript; charset=utf-8"
         }]
     }]
   }

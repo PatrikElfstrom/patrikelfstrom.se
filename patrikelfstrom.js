@@ -115,7 +115,7 @@ app.use(/([^/]*)(\/|\/index.html)$/, function(req, res, next) {
 
 app.use(/.*\.js$/, function(req, res, next) {
     // Javascript should be served as text/javascript and not application/javascript
-    res.setHeader('Content-Type', 'text/javascript');
+    res.setHeader('Content-Type', 'text/javascript; charset=utf-8');
     next();
 });
 
