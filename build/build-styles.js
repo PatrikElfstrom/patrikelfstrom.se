@@ -1,38 +1,32 @@
-const mkdirp        = require('mkdirp');
-const fs            = require('fs');
-const path          = require('path');
-const cleanCss      = require('clean-css');
-const sass          = require('node-sass');
+
+// const mkdirp        = require('mkdirp');
+// const fs            = require('fs');
+// const path          = require('path');
+const pify          = require('pify');
+const globby        = require('globby');
+const sass          = pify(require('node-sass'));
 const autoprefixer  = require('autoprefixer');
 const postcss       = require('postcss');
-const config        = require('../config');
+// const cleanCss      = require('clean-css');
 
-const headSCSSFile  = path.join(config.app, 'styles', 'head.scss');
-const indexHTMLFile = path.join(config.public, 'index.html');
+module.exports = async glob => {
+    const stylesStart = Date.now();
+    const styles = await globby(glob);
 
-sass.render({
-    file: headSCSSFile
-}, (err, result) => {
-    if (err) {
-        throw err;
-    }
+    console.log(`Optimizing ${styles.length} styles...`);
 
-    postcss([ autoprefixer ]).process(result.css).then(function (result) {
-        result.warnings().forEach(function (warn) {
-            console.warn(warn.toString());
-        });
-        let output = result.css;
+    const stylePromises = styles.map(async stylePath => {
+        const styleStart = Date.now();
 
-        output = new cleanCss().minify(output).styles;
+        return sass.render({ file: stylePath })
+            .then(style => postcss([ autoprefixer ]).process(style.css))
+            .then(() => {
+                console.log(`${Date.now() - stylesStart} ms, ${stylePath}`);
+            })
+            .catch(error => console.warn(error));
+    });
 
-        fs.readFile(indexHTMLFile, 'utf8', (err, data) => {
-            if (err) throw err;
-
-            data = data.replace('{{head}}', output);
-
-            fs.writeFile(indexHTMLFile, data, 'utf8', () => {
-                console.log('Injected head.scss into index.html');
-            });
-        });
+    return Promise.all(stylePromises).then(() => {
+        console.log(`Optimized ${stylePromises.length} scripts in ${Date.now() - stylesStart} ms`)
     }).catch(error => console.warn(error));
-});
+};

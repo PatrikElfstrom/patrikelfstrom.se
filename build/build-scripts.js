@@ -1,37 +1,52 @@
+const path      = require('path');
+const globby    = require('globby');
 const rollup    = require('rollup');
 const babel     = require('rollup-plugin-babel');
 const uglify    = require('rollup-plugin-uglify');
+const eslint    = require('rollup-plugin-eslint');
 const uglifyES  = require('uglify-es');
-const path      = require('path');
-const config    = require('../config');
 
-const entries = [
-    path.join(config.app, 'scripts', 'main.js')
-];
+module.exports = async (glob, destination) => {
+    const scriptsStart = Date.now();
+    const scripts = await globby(glob);
 
-let cache;
-entries.forEach(entry => {
-    rollup.rollup({
-        input: `${entry}`,
-        cache,
-        plugins: [
-            uglify({}, uglifyES.minify),
-            babel()
-        ]
-    }).then(bundle => {
-        const filename = entry.match(/[a-z.]+$/)[0];
-        const destinationPath = path.join(config.public, 'scripts', filename);
-        cache = bundle;
+    console.log(`Optimizing ${scripts.length} scripts...`);
 
-        bundle.generate({
-            format: 'iife',
-            file: destinationPath
-        }).catch(error => console.warn(error));
+    const scriptPromises = scripts.map(async scriptPath => {
 
-        bundle.write({
-            format: 'iife',
-            file: destinationPath
+        return new Promise(async (resolve, reject) => {
+            const scriptStart = Date.now();
+            const filename = path.basename(scriptPath);
+            const destinationPath = path.join(destination, filename);
+
+            rollup.rollup({
+                input: scriptPath,
+                plugins: [
+                    babel(),
+                    // eslint(),
+                    uglify({}, uglifyES.minify)
+                    // tests
+                ]
+            })
+            .catch(error => console.warn(error))
+            .then(bundle => {
+                bundle.generate({
+                    format: 'iife',
+                    file: destinationPath
+                })
+                .catch(error => console.warn(error))
+                .then(code => {
+                    const scriptSize = Buffer.byteLength(code.code);
+
+                    console.log(`${Date.now() - scriptStart} ms, ${scriptPath}`);
+
+                    resolve({ code, bundle, filename:filename, size:scriptSize });
+                })
+            });
         });
+    });
 
+    return Promise.all(scriptPromises).then(() => {
+        console.log(`Optimized ${scriptPromises.length} scripts in ${Date.now() - scriptsStart} ms`);
     }).catch(error => console.warn(error));
-});
+};

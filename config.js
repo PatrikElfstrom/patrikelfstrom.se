@@ -62,6 +62,7 @@ module.exports = (() => {
                         'dist',
                         'node_modules',
                         'log',
+                        '.git'
                     ],
                     out_file: 'log/pm2-out.log',
                     error_file: 'log/pm2-error.log',
