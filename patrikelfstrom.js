@@ -45,7 +45,7 @@ app.use(shrinkRay());
 
 // Generate nonce for CSP
 app.use((req, res, next) => {
-  res.locals.nonce = uuid.v4();
+  res.locals.nonce = Buffer.from(uuid.v4()).toString('base64');
   next();
 });
 
@@ -94,11 +94,12 @@ app.use(/([^/]*)(\/|\/index.html)$/, function(req, res, next) {
             + "worker-src 'self'; "
             + "report-uri /report-csp-violation; "
             + "report-to /report-csp-violation; "
-            + "script-src 'self' https://www.google-analytics.com; "
-            + "style-src 'self' 'nonce-"+res.locals.nonce+"'; "
+            + "script-src 'self'  https://www.google-analytics.com; "
+            // + "style-src 'self' 'nonce-"+res.locals.nonce+"'; " // Firefox has buggy CSP
+            + "style-src 'self' 'unsafe-inline'; "
             + "img-src 'self' https://www.google-analytics.com; "
             + "font-src https://fonts.gstatic.com;");
-
+   
     // Only connect to this site via HTTPS for the six months
     res.setHeader('Strict-Transport-Security', 'max-age=15768000; includeSubDomains');
 

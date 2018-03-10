@@ -183,10 +183,13 @@ The Cache-Control general-header field is used to specify directives for caching
 
 #### Recommended Value
 HTML files should be served with a low max-age (under 3 minutes) or `no-cache`:  
-`Cache-Control: max-age=180, immutable`
+`Cache-Control: public, max-age=180, immutable`
 
 Other resources should be served with a long max-age:  
-`Cache-Control: max-age=31536000, immutable`
+`Cache-Control: public, max-age=31536000, immutable`
+
+Service workers should be served with max-age=0:  
+`Cache-Control: public, max-age=0, immutable`
 
 `immutable` indicates that the response body will not change over time. The resource, if unexpired, is unchanged on the server and therefore the client should not send a conditional revalidation for it (e.g. If-None-Match or If-Modified-Since) to check for updates, even when the user explicitly refreshes the page.
 

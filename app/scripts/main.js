@@ -1,3 +1,5 @@
+import './triangles';
+
 if('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js');
 }

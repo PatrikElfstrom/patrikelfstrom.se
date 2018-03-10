@@ -1,12 +1,14 @@
 const rollup    = require('rollup');
 const babel     = require('rollup-plugin-babel');
 const uglify    = require('rollup-plugin-uglify');
+const resolve   = require('rollup-plugin-node-resolve');
 const uglifyES  = require('uglify-es');
 const path      = require('path');
 const config    = require('../config');
 
 const entries = [
-    path.join(config.app, 'scripts', 'main.js')
+    path.join(config.app, 'scripts', 'main.js'),
+    path.join(config.app, 'scripts', 'triangulr.js')
 ];
 
 let cache;
@@ -15,6 +17,7 @@ entries.forEach(entry => {
         input: `${entry}`,
         cache,
         plugins: [
+            resolve(),
             uglify({}, uglifyES.minify),
             babel()
         ]
