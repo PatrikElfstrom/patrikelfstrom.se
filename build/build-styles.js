@@ -17,7 +17,7 @@ sass.render({
         throw err;
     }
 
-    postcss([ autoprefixer ]).process(result.css).then(function (result) {
+    postcss([ autoprefixer ]).process(result.css, { from: undefined }).then(function (result) {
         result.warnings().forEach(function (warn) {
             console.warn(warn.toString());
         });
