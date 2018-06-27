@@ -1,38 +1,52 @@
-const mkdirp        = require('mkdirp');
-const fs            = require('fs');
+
+// const mkdirp        = require('mkdirp');
 const path          = require('path');
-const cleanCss      = require('clean-css');
-const sass          = require('node-sass');
+const pify          = require('pify');
+const fs            = pify(require('fs'));
+const globby        = require('globby');
+const mkdirp        = require('mkdirp');
+const sass          = pify(require('node-sass'));
 const autoprefixer  = require('autoprefixer');
 const postcss       = require('postcss');
 const config        = require('../config');
+// const cleanCss      = require('clean-css');
 
-const headSCSSFile  = path.join(config.app, 'styles', 'head.scss');
-const indexHTMLFile = path.join(config.public, 'index.html');
+module.exports = styles = async (
+    source = config.styleSource,
+    destination = config.styleDestination
+) => {
+    const stylesStart = Date.now();
+    const styles = await globby(source);
 
-sass.render({
-    file: headSCSSFile
-}, (err, result) => {
-    if (err) {
-        throw err;
-    }
+    console.log(`Transpiling ${styles.length} styles...`);
 
-    postcss([ autoprefixer ]).process(result.css, { from: undefined }).then(function (result) {
-        result.warnings().forEach(function (warn) {
-            console.warn(warn.toString());
-        });
-        let output = result.css;
+    mkdirp(destination, err => {
+        if (err) console.error(err)
+    });
 
-        output = new cleanCss().minify(output).styles;
+    const stylePromises = styles.map(async stylePath => {
+        const styleStart = Date.now();
 
-        fs.readFile(indexHTMLFile, 'utf8', (err, data) => {
-            if (err) throw err;
+        return sass.render({ file: stylePath })
+            .then(style => postcss([ autoprefixer ]).process(style.css, { from: undefined }))
+            .then(css => {
+                // Don't know why this is necessary
+                mkdirp(destination, err => {
+                    if (err) console.error(err)
+                });
 
-            data = data.replace('{{head}}', output);
+                fs.writeFile(`${path.join(destination, path.basename(stylePath, path.extname(stylePath)))}.css`, css, 'utf8')
+                .then(() => {
+                    console.log(`${Date.now() - stylesStart} ms, ${stylePath}`);
+                })
+                .catch(error => console.error(error));
+            })
+            .catch(error => console.warn(error));
+    });
 
-            fs.writeFile(indexHTMLFile, data, 'utf8', () => {
-                console.log('Injected head.scss into index.html');
-            });
-        });
+    return Promise.all(stylePromises).then(() => {
+        console.log(`Transpiled ${stylePromises.length} styles in ${Date.now() - stylesStart} ms`)
     }).catch(error => console.warn(error));
-});
+};
+
+styles();

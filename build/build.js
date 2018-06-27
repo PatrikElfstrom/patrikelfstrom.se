@@ -1,37 +1,57 @@
-const shell = require('shelljs');
+const path          = require('path');
+const shell         = require('shelljs');
+const config        = require('../config');
+const buildImages   = require('./build-images');
+const buildScripts  = require('./build-scripts');
+const buildStyles   = require('./build-styles');
+const buildHtml     = require('./build-html');
+const buildSw       = require('./build-sw');
 
-const cleanDist    = 'npm run clean-dist';
-const copy         = 'npm run copy';
-const buildHTML    = 'npm run build-html';
-const buildStyles  = 'npm run build-styles';
-const buildScripts = 'npm run build-scripts';
-const buildImages  = 'npm run build-images';
-const buildSw      = 'npm run build-sw';
+// ========================================================
+// Clean
+shell.exec('npm run clean-dist');
 
-var promises = [];
+(async () => {
+    const buildStart = Date.now();
 
-// Run cleanDist async
-shell.exec(cleanDist, {async:true}, () => {
+    // ========================================================
+    // Copy root files
+    shell.exec('npm run copy', { async: true });
 
-    // Run all tasks after cleanDist async
-    // And push them in to the promises array
-    promises.push(shellExec(copy, {async:true}));
-    promises.push(shellExec(buildStyles, {async:true}));
-    promises.push(shellExec(buildScripts, {async:true}));
-    promises.push(shellExec(buildImages, {async:true}));
 
-    // When all promises has been resolved run buildSw
-    Promise.all(promises).then(() => {
-        shellExec(buildHTML, {async:true});
-        shell.exec(buildSw);
+    // ========================================================
+    // Images
+    const imagePromise = buildImages(config.imageSource, config.imageDestination)
+        .catch(error => console.warn(error));
+
+
+    // ========================================================
+    // Scripts
+    const scriptPromise = buildScripts(config.scriptSource, config.scriptDestination)
+        .catch(error => console.warn(error));
+
+
+    // ========================================================
+    // Styles
+    const stylePromise = buildStyles(config.styleSource, config.styleDestination)
+        .catch(error => console.warn(error));
+
+
+    // ========================================================
+    // HTMl
+    const templatePromise = buildHtml(config.templateSource, config.templateDestination, config.partialSource)
+        .catch(error => console.warn(error));
+
+
+    // ========================================================
+    // Service Worker
+    const serviceWorkerPromise = Promise.all([imagePromise, scriptPromise, stylePromise, templatePromise]).then(() => {
+        return buildSw(config.swSource, config.swDestination)
+            .catch(error => console.warn(error));
     });
-});
 
-// Run shell.exec and return a resolved promise when done
-function shellExec(arguments) {
-    return new Promise(resolve => {
-        shell.exec(arguments, () => {
-            resolve();
-        });
+
+    Promise.all([imagePromise, scriptPromise, stylePromise, templatePromise, serviceWorkerPromise]).then(() => {
+        console.log(`Built in ${Date.now() - buildStart} ms`);
     });
-}
+})();

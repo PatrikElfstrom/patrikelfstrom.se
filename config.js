@@ -8,7 +8,18 @@ module.exports = (() => {
     let config = {
         root: rootDirectory,
         app: sourceDirectory,
-        public: publicDirectory
+        public: publicDirectory,
+        imageSource: path.join(sourceDirectory, 'images/**/*.{png,jpg,gif}'),
+        imageDestination: path.join(publicDirectory, 'images'),
+        scriptSource: path.join(sourceDirectory, 'scripts/**/!(sw).js'),
+        scriptDestination: path.join(publicDirectory, 'scripts'),
+        styleSource: path.join(sourceDirectory, 'styles/**/*.scss'),
+        styleDestination: path.join(publicDirectory, 'styles'),
+        partialSource: path.join(sourceDirectory, 'templates/partials/**/*.hbs'),
+        templateSource: path.join(sourceDirectory, 'templates/*.hbs'),
+        templateDestination: publicDirectory,
+        swSource: path.join(sourceDirectory, 'scripts'),
+        swDestination: publicDirectory,
     };
 
     let environmentConfig = {
@@ -62,6 +73,7 @@ module.exports = (() => {
                         'dist',
                         'node_modules',
                         'log',
+                        '.git'
                     ],
                     out_file: 'log/pm2-out.log',
                     error_file: 'log/pm2-error.log',

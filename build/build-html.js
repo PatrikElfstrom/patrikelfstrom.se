@@ -1,34 +1,56 @@
-const fs            = require('fs');
+const pify          = require('pify');
 const path          = require('path');
-const glob          = require('glob');
-const minify        = require('html-minifier').minify;
-const Handlebars    = require('handlebars');
+const globby        = require('globby');
+const mkdirp        = require('mkdirp');
+const fs            = pify(require('fs'));
 const config        = require('../config');
+const Handlebars    = require('handlebars');
 
-Handlebars.registerHelper('json', function(context) {
-    return JSON.stringify(context);
-});
+module.exports = html = async (
+    templateSource = config.templateSource,
+    destination = config.templateDestination,
+    partialSource = config.partialSource
+) => {
+    const templateStart = Date.now();
+    const templates = await globby(templateSource);
+    const partials = await globby(partialSource);
 
-glob(path.join(config.public, '**/*.html'), function (er, files) {
-    files.forEach(file => {
-        fs.readFile(file, 'utf8', (err, data) => {
-            if (err) throw err;
+    console.log(`Optimizing ${templates.length} templates...`);
 
-            const template = Handlebars.compile(data);
-            data = template(config);
-
-            data = minify(data, {
-                collapseBooleanAttributes: true,
-                collapseInlineTagWhitespace: true,
-                collapseWhitespace: true,
-                sortAttributes: true,
-                sortClassName: true,
-                removeAttributeQuotes: true
-            });
-
-            fs.writeFile(file, data, 'utf8', () => {
-                console.log('Transformed ' + file);
-            });
-        });
+    mkdirp(destination, err => {
+        if (err) console.error(err)
     });
-})
+
+    // Register Helpers
+    Handlebars.registerHelper('json', context => JSON.stringify(context));
+
+    // Register Partials
+    partials.map(async partial => {
+        return fs.readFile(partial, 'utf8')
+        .then(data => Handlebars.registerPartial(
+            path.basename(partial, path.extname(partial)),
+            data
+        ))
+        .catch(error => console.warn(error));
+    });
+
+    // Compile Templates
+    const templatePromises = templates.map(async template =>
+        fs.readFile(template, 'utf8')
+            .then(data => Handlebars.compile(data)(config))
+            .then(data => {
+                fs.writeFile(`${path.join(destination, path.basename(template, path.extname(template)))}.html`, data, 'utf8')
+                .then(() => {
+                    console.log(`${Date.now() - templateStart} ms, ${template}`);
+                })
+                .catch(error => console.warn(error));
+            })
+            .catch(error => console.warn(error))
+    );
+
+    return Promise.all(templatePromises).then(() => {
+        console.log(`Optimized ${templatePromises.length} templates in ${Date.now() - templateStart} ms`)
+    }).catch(error => console.warn(error));
+};
+
+html();
