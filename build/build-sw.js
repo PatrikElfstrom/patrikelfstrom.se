@@ -30,7 +30,7 @@ module.exports = sw = async (
                 return;
             }
 
-            copy.one(res, path.join(config.public, 'scripts'), {flatten: true}, () => {
+            copy(`${res}*`, path.join(config.public, 'scripts'), {flatten: true}, () => {
                 console.log('Workbox-sw has been copied');
                 pResolve();
             });
@@ -46,7 +46,7 @@ module.exports = sw = async (
                 return;
             }
 
-            copy.one(res, path.join(config.public, 'scripts'), {flatten: true}, () => {
+            copy(`${res}*`, path.join(config.public, 'scripts'), {flatten: true}, () => {
                 console.log('Workbox-google-analytics has been copied');
                 pResolve();
             });

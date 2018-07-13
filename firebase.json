@@ -67,6 +67,12 @@
             "key" : "Content-Type",
             "value" : "text/javascript; charset=utf-8"
         }]
+    },{
+        "source" : "**/*.@(map)",
+        "headers" : [{
+            "key" : "Content-Type",
+            "value" : "application/json; charset=utf-8"
+        }]
     }]
   }
 }
