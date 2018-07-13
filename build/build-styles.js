@@ -14,7 +14,7 @@ const config        = require('../config');
 module.exports = styles = async (
     source = config.styleSource,
     destination = config.styleDestination
-) => {
+) => new Promise(async (resolve, reject) => {
     const stylesStart = Date.now();
     const styles = await globby(source);
 
@@ -45,8 +45,9 @@ module.exports = styles = async (
     });
 
     return Promise.all(stylePromises).then(() => {
-        console.log(`Transpiled ${stylePromises.length} styles in ${Date.now() - stylesStart} ms`)
-    }).catch(error => console.warn(error));
-};
+        console.log(`Transpiled ${stylePromises.length} styles in ${Date.now() - stylesStart} ms`);
+        resolve();
+    }).catch(error => reject(error));
+});
 
 styles();

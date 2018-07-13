@@ -9,7 +9,7 @@ const config            = require('../config');
 module.exports = images = async (
     source = config.imageSource,
     destination = config.imageDestination
-) => {
+) => new Promise(async (resolve, reject) => {
     const imagesStart = Date.now();
     const images = await globby(source);
 
@@ -49,7 +49,8 @@ module.exports = images = async (
 
     return Promise.all(imagePromises).then(() => {
         console.log(`Optimized ${imagePromises.length} images in ${Date.now() - imagesStart} ms`);
-    }).catch(error => console.warn(error));
-};
+        resolve();
+    }).catch(error => reject(error));
+});
 
 images();

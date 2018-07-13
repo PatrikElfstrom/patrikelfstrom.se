@@ -6,11 +6,12 @@ const fs            = pify(require('fs'));
 const config        = require('../config');
 const Handlebars    = require('handlebars');
 
-module.exports = html = async (
+
+module.exports = html = (
     templateSource = config.templateSource,
     destination = config.templateDestination,
     partialSource = config.partialSource
-) => {
+) => new Promise(async (resolve, reject) => {
     const templateStart = Date.now();
     const templates = await globby(templateSource);
     const partials = await globby(partialSource);
@@ -49,8 +50,9 @@ module.exports = html = async (
     );
 
     return Promise.all(templatePromises).then(() => {
-        console.log(`Optimized ${templatePromises.length} templates in ${Date.now() - templateStart} ms`)
-    }).catch(error => console.warn(error));
-};
+        console.log(`Optimized ${templatePromises.length} templates in ${Date.now() - templateStart} ms`);
+        resolve();
+    }).catch(error => reject(error));
+});
 
 html();

@@ -11,7 +11,7 @@ const config    = require('../config');
 module.exports = scripts = async (
     source = config.scriptSource,
     destination = config.scriptDestination
-) => {
+) => new Promise(async (resolve, reject) => {
     const scriptsStart = Date.now();
     const scripts = await globby(source);
 
@@ -46,7 +46,8 @@ module.exports = scripts = async (
 
     return Promise.all(scriptPromises).then(() => {
         console.log(`Compiled ${scriptPromises.length} scripts in ${Date.now() - scriptsStart} ms`);
-    }).catch(error => console.warn(error));
-};
+        resolve();
+    }).catch(error => reject(error));
+});
 
 scripts();

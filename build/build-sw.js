@@ -7,7 +7,7 @@ const config    = require('../config');
 module.exports = sw = async (
     source = config.swSource,
     destination = config.swDestination
-) => {
+) => new Promise(async (gpResolve, reject) => {
     const swStart = Date.now();
 
     // Inject manifest in sw
@@ -56,7 +56,8 @@ module.exports = sw = async (
 
     return Promise.all([swBuildPromise, workboxPromise, workboxGaPromise]).then(() => {
         console.log(`Service Worker complete in ${Date.now() - swStart} ms`);
-    }).catch(error => console.warn(error));
-}
+        gpResolve();
+    }).catch(error => reject(error));
+});
 
-sw(config.swSource, config.swDestination);
+sw();

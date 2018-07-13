@@ -45,11 +45,9 @@ shell.exec('npm run clean-dist');
 
     // ========================================================
     // Service Worker
-    const serviceWorkerPromise = Promise.all([imagePromise, scriptPromise, stylePromise, templatePromise]).then(() => {
-        return buildSw(config.swSource, config.swDestination)
-            .catch(error => console.warn(error));
-    });
-
+    const serviceWorkerPromise = Promise.all([imagePromise, scriptPromise, stylePromise, templatePromise]).then(() =>
+        buildSw(config.swSource, config.swDestination)
+            .catch(error => console.warn(error)));
 
     Promise.all([imagePromise, scriptPromise, stylePromise, templatePromise, serviceWorkerPromise]).then(() => {
         console.log(`Built in ${Date.now() - buildStart} ms`);
