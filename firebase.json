@@ -2,77 +2,98 @@
   "hosting": {
     "public": "dist",
     "rewrites": [
-        {
-            "source": "/manifest.json",
-            "destination": "/manifest.webmanifest"
-        },
-        {
-            "source": "**",
-            "destination": "/index.html"
-        }
+      {
+        "source": "/manifest.json",
+        "destination": "/manifest.webmanifest"
+      },
+      {
+        "source": "/",
+        "destination": "/index.html"
+      }
     ],
-    "ignore": [
-        "firebase.json",
-        "**/.*",
-        "**/node_modules/**"
-    ],
-    "headers": [{
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "headers": [
+      {
         "source": "**",
-        "headers": [{
+        "headers": [
+          {
             "key": "X-Content-Type-Options",
             "value": "nosniff"
-        },{
+          },
+          {
             "key": "Referrer-Policy",
             "value": "strict-origin-when-cross-origin"
-        },{
+          },
+          {
             "key": "Expect-CT",
             "value": "enforce, max-age=30, report-uri=\"https://patrikelfstrom.report-uri.com/r/d/ct/enforce\""
-        },{
-            "key" : "Cache-Control",
-            "value" : "public, max-age=31536000, immutable"
-        }]
-    },{
+          },
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000, immutable"
+          }
+        ]
+      },
+      {
         "source": "/",
-        "headers": [{
+        "headers": [
+          {
             "key": "X-Content-Type-Options",
             "value": "nosniff"
-        },{
+          },
+          {
             "key": "X-Frame-Options",
             "value": "Deny"
-        },{
+          },
+          {
             "key": "X-XSS-Protection",
             "value": "1; mode=block"
-        },{
+          },
+          {
             "key": "Referrer-Policy",
             "value": "strict-origin-when-cross-origin"
-        },{
+          },
+          {
             "key": "Content-Security-Policy",
-            "value": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; connect-src 'self' https://www.google-analytics.com; manifest-src 'self'; worker-src 'self'; report-uri https://patrikelfstrom.report-uri.com/r/d/csp/enforce; report-to https://patrikelfstrom.report-uri.com/r/d/csp/enforce; script-src 'self' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; img-src 'self' https://www.google-analytics.com; font-src https://fonts.gstatic.com;"
-        },{
+            "value": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; connect-src 'self' https://www.google-analytics.com; manifest-src 'self'; worker-src 'self'; report-uri https://patrikelfstrom.report-uri.com/r/d/csp/enforce; report-to https://patrikelfstrom.report-uri.com/r/d/csp/enforce; script-src 'self' 'sha256-QyD1UmZUr0T6pahR/ZcP0iGMqt2/uj7XQp2rTZJotEg=' https://www.googletagmanager.com https://www.google-analytics.com; style-src blob: 'self' 'unsafe-inline'; img-src 'self' https://www.google-analytics.com; font-src https://fonts.gstatic.com;"
+          },
+          {
             "key": "Expect-CT",
             "value": "enforce, max-age=30, report-uri=\"https://patrikelfstrom.report-uri.com/r/d/ct/enforce\""
-        },{
-            "key" : "Cache-Control",
-            "value" : "public, max-age=180, immutable"
-        }]
-    },{
-        "source" : "/sw.js",
-        "headers" : [{
-            "key" : "Cache-Control",
-            "value" : "public, max-age=0, immutable"
-        }]
-    },{
-        "source" : "**/*.@(js)",
-        "headers" : [{
-            "key" : "Content-Type",
-            "value" : "text/javascript; charset=utf-8"
-        }]
-    },{
-        "source" : "**/*.@(map)",
-        "headers" : [{
-            "key" : "Content-Type",
-            "value" : "application/json; charset=utf-8"
-        }]
-    }]
+          },
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=180, immutable"
+          }
+        ]
+      },
+      {
+        "source": "/sw.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=0, immutable"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(js)",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "text/javascript; charset=utf-8"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(map)",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/json; charset=utf-8"
+          }
+        ]
+      }
+    ]
   }
 }

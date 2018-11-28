@@ -6,8 +6,8 @@ Mail: me at patrikelfstrom.se
 Location: Gothenburg, Sweden
 
 /* SITE */
-Description: Patrik Elfström portfolio
-Updated: 2017-07-02
+Description: Patrik Elfström
+Updated: 2018-11-28
 Repository: https://github.com/PatrikElfstrom/patrikelfstrom.se
 
 # humanstxt.org/

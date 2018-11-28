@@ -1,0 +1,22 @@
+{
+  "@context": "http://schema.org",
+  "@type": "Person",
+  "name": "Patrik Elfström",
+  "jobTitle": "Front-end Developer",
+  "url": "https://patrikelfstrom.se",
+  "sameAs": [
+    "https://github.com/PatrikElfstrom",
+    "https://linkedin.com/in/PatrikElfstrom",
+    "https://google.com/+PatrikElfström",
+    "https://youtube.com/PatrikElfström",
+    "https://soundcloud.com/PatrikElfstrom",
+    "https://twitter.com/PatrikElfstrom"
+  ],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://patrikelfstrom.se",
+    "name": "Patrik Elfström",
+    "description": "Patrik Elfström is a Web Developer in Gothenburg, Sweden currently working as a Front-end Developer focusing on user experience and performance.",
+    "primaryImageOfPage": "https://patrikelfstrom.se/images/icons/patrikelfstrom-logo-1200x1200.png"
+  }
+}
