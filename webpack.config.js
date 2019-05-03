@@ -43,8 +43,6 @@ module.exports = async (_, env) => {
               options: {
                 modules: true,
                 localIdentName: isProd ? '[hash:base64:5]' : '[local]__[hash:base64:5]',
-                namedExport: true,
-                camelCase: true,
                 importLoaders: 1,
                 sourceMap: true,
               },
@@ -70,7 +68,9 @@ module.exports = async (_, env) => {
       ],
     },
     plugins: [
-      new CleanWebpackPlugin(['dist']),
+      new CleanWebpackPlugin({
+        cleanOnceBeforeBuildPatterns: ['dist'],
+      }),
 
       () => isProd && new webpack.optimize.SplitChunksPlugin({}),
 
