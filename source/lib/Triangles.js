@@ -1,0 +1,292 @@
+import { Renderer, BatchRenderer } from '@pixi/core';
+import { Application } from '@pixi/app';
+import { Container } from '@pixi/display';
+import { EventEmitter } from '@pixi/utils';
+import { TickerPlugin } from '@pixi/ticker';
+import { debounce } from 'lodash-es';
+import Triangle from './Triangle';
+import { randomHslGenerator, hslToHex, randomNumber } from './colors';
+
+Renderer.registerPlugin('batch', BatchRenderer);
+Application.registerPlugin(TickerPlugin);
+
+export default class Triangles extends Application {
+  trianglePositions = [];
+
+  logoTrianglePositions = [];
+
+  triangles = [];
+
+  triangle;
+
+  size;
+
+  trianglesPerRow;
+
+  trianglesPerColumn;
+
+  container;
+
+  textures = {};
+
+  events;
+
+  constructor(options) {
+    super(options);
+
+    this.events = new EventEmitter();
+
+    this.triangle = new Triangle(options.size);
+
+    // Create a container
+    this.container = new Container();
+
+    // Add container to stage
+    this.stage.addChild(this.container);
+
+    this.generateTriangles();
+
+    window.addEventListener('resize', debounce(this.generateTriangles, 100));
+  }
+
+  generateTriangles = () => {
+    // Remove existing children so we don't get duplicates
+    this.container.removeChildren();
+
+    ({
+      trianglesPerRow: this.trianglesPerRow,
+      trianglesPerColumn: this.trianglesPerColumn,
+    } = this.calculateNumberOfTriangles());
+
+    this.trianglePositions = this.calculateTrianglePositions();
+    this.logoTrianglePositions = this.calculateLogoTrianglePositions();
+
+    this.triangles = this.renderTriangles(({ color, positions, delay }) => {
+      if (
+        this.logoTrianglePositions.find(
+          (trianglePosition) =>
+            trianglePosition.grid.x === positions.grid.x &&
+            trianglePosition.grid.y === positions.grid.y
+        )
+      ) {
+        delay = randomNumber(500, 2000);
+        color = hslToHex(randomHslGenerator(200, 100, 30, 0, 10));
+      }
+
+      return { color, positions, delay };
+    });
+
+    this.triangles.forEach((triangle) => {
+      this.container.addChild(triangle);
+    });
+  };
+
+  calculateNumberOfTriangles() {
+    const trianglesPerRow = Math.ceil(this.screen.width / this.triangle.height);
+
+    // Divide by half since each triangle interlock
+    // add one since we see the next row
+    const trianglesPerColumn =
+      Math.ceil(this.screen.height / (this.triangle.width / 2)) + 1;
+
+    return { trianglesPerRow, trianglesPerColumn };
+  }
+
+  calculateLogoTrianglePositions() {
+    // Calculate the center position and reduce by one since we start at 0
+    let positionX = Math.ceil(this.trianglesPerRow / 2) - 1;
+    let positionY = Math.floor(this.trianglesPerColumn / 2) - 1;
+
+    // Move the center position up a bit
+    const goldenRatio = (1 + Math.sqrt(5)) / 2;
+    positionY = Math.ceil(positionY / goldenRatio);
+
+    // Find the first triangle that is left pointing starting at the center
+    // (The first should always be one row below)
+    const centerPosition = this.trianglePositions.find(
+      (position) =>
+        position.grid.y >= positionY &&
+        position.grid.x === positionX &&
+        position.scale.y === -1
+    );
+
+    // assign the center position
+    if (centerPosition) {
+      positionX = centerPosition.grid.x;
+      positionY = centerPosition.grid.y;
+    }
+
+    // The logo design
+    const triangles = [
+      // Center
+      { y: 0, x: 0 },
+      { y: -1, x: 0 },
+      { y: -1, x: -1 },
+      { y: 0, x: -1 },
+      { y: 1, x: -1 },
+      { y: 1, x: 0 },
+
+      // Ring Left
+      { y: -5, x: -1 },
+      { y: -4, x: -1 },
+      { y: -4, x: -2 },
+      { y: -3, x: -2 },
+      { y: -3, x: -3 },
+      { y: -2, x: -3 },
+      { y: -1, x: -3 },
+      { y: 0, x: -3 },
+      { y: 1, x: -3 },
+      { y: 2, x: -3 },
+      { y: 3, x: -3 },
+
+      // Ring right
+      { y: -5, x: 0 },
+      { y: -4, x: 0 },
+      { y: -4, x: 1 },
+      { y: -3, x: 1 },
+      { y: -3, x: 2 },
+      { y: -2, x: 2 },
+      { y: -1, x: 2 },
+      { y: 0, x: 2 },
+      { y: 1, x: 2 },
+      { y: 2, x: 2 },
+      { y: 3, x: 2 },
+      { y: 3, x: 1 },
+      { y: 4, x: 1 },
+      { y: 4, x: 0 },
+      { y: 5, x: 0 },
+      { y: 5, x: -1 },
+      { y: 4, x: -1 },
+    ];
+
+    const trianglePositions = triangles.map((triangle) => {
+      const xIndex = positionX + triangle.x;
+      const yIndex = positionY + triangle.y;
+      let xPixel = xIndex * this.triangle.height;
+      const yPixel = (yIndex * this.triangle.width) / 2;
+
+      // Add 50% because of reasons
+      xPixel += this.triangle.height / 2;
+
+      // Flip every even column in every odd row
+      // And flip every odd column in every even row
+      const yScale =
+        (yIndex % 2 === 0 && xIndex % 2 === 1) ||
+        (yIndex % 2 === 1 && xIndex % 2 === 0)
+          ? -1
+          : 1;
+
+      return {
+        grid: { x: xIndex, y: yIndex },
+        pixel: {
+          x: xPixel,
+          y: yPixel,
+        },
+        scale: { x: 1, y: yScale },
+      };
+    });
+
+    return trianglePositions;
+  }
+
+  calculateTrianglePositions() {
+    const trianglePositions = [];
+
+    for (let xIndex = 0; xIndex < this.trianglesPerRow; xIndex += 1) {
+      for (let yIndex = 0; yIndex < this.trianglesPerColumn; yIndex += 1) {
+        const position = {
+          grid: { x: xIndex, y: yIndex },
+          pixel: { x: 0, y: 0 },
+          scale: { x: 1, y: 1 },
+        };
+
+        // Flip every even column in every odd row
+        if (yIndex % 2 === 0 && xIndex % 2 === 1) {
+          position.scale.y = -1;
+        }
+
+        // Flip every odd column in every even row
+        if (yIndex % 2 === 1 && xIndex % 2 === 0) {
+          position.scale.y = -1;
+        }
+
+        // Move the each row 50% to the right
+        // Since we start from the triangle center
+        position.pixel.x += this.triangle.height / 2;
+
+        // Position triangle
+        position.pixel.x += xIndex * this.triangle.height;
+        position.pixel.y += (yIndex * this.triangle.width) / 2;
+
+        trianglePositions.push(position);
+      }
+    }
+
+    return trianglePositions;
+  }
+
+  renderTriangles(triangleRenderCallback) {
+    const triangles = this.trianglePositions.map((trianglePosition) => {
+      const hexColor = hslToHex(randomHslGenerator());
+      const visibilityDelay = randomNumber(0, 500);
+
+      const { color, positions, delay } =
+        typeof triangleRenderCallback === 'function'
+          ? triangleRenderCallback({
+              color: hexColor,
+              positions: trianglePosition,
+              delay: visibilityDelay,
+            })
+          : {
+              color: hexColor,
+              positions: trianglePosition,
+              delay: visibilityDelay,
+            };
+
+      // Only generate if no texture with the same color has been generated
+      if (!Object.prototype.hasOwnProperty.call(this.textures, color)) {
+        const graphics = this.triangle.generateGraphics(color);
+        const texture = Triangle.generateTexture(graphics, this.renderer);
+
+        this.textures[color] = texture;
+      }
+
+      const sprite = this.triangle.createSprite(this.textures[color]);
+
+      sprite.scale.y = positions.scale.y;
+      sprite.scale.x = positions.scale.x;
+      sprite.x = positions.pixel.x;
+      sprite.y = positions.pixel.y;
+
+      const spriteTargetAlpha = 1;
+
+      const transitionSpeed = 1; // In seconds
+      const fps = 60;
+      const transitionSpeedPerFrame = (fps * transitionSpeed) / 1000;
+
+      const showSprite = () => {
+        sprite.age = Date.now() - sprite.added;
+
+        // Delay sprite
+        if (sprite.age >= delay) {
+          // Remove ticker if sprite is fully visible
+          if (sprite.alpha < spriteTargetAlpha) {
+            sprite.alpha += transitionSpeedPerFrame * this.ticker.deltaTime;
+          } else {
+            this.ticker.remove(showSprite);
+          }
+        }
+      };
+
+      this.ticker.add(showSprite);
+
+      sprite.on('added', () => {
+        sprite.added = Date.now();
+      });
+
+      return sprite;
+    });
+
+    return triangles;
+  }
+}

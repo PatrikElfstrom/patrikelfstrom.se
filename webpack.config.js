@@ -2,7 +2,8 @@ const path = require('path');
 const webpack = require('webpack');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WorkboxPlugin = require('workbox-webpack-plugin');
 const structuredData = require('./structuredData.json');
 
@@ -42,7 +43,9 @@ module.exports = async (_, env) => {
               loader: 'css-loader',
               options: {
                 modules: true,
-                localIdentName: isProd ? '[hash:base64:5]' : '[local]__[hash:base64:5]',
+                // localIdentName: isProd
+                //   ? '[hash:base64:5]'
+                //   : '[local]__[hash:base64:5]',
                 importLoaders: 1,
                 sourceMap: true,
               },
@@ -77,7 +80,7 @@ module.exports = async (_, env) => {
       new HtmlWebpackPlugin({
         template: 'source/index.ejs',
         templateParameters: {
-          host: 'patrikelfstrom.se',
+          host: 'http://127.0.0.1:8080',
           structuredData,
         },
         minify: {
@@ -94,6 +97,14 @@ module.exports = async (_, env) => {
         clientsClaim: true,
         skipWaiting: true,
       }),
+      new CopyWebpackPlugin({
+        patterns: [
+          { from: path.join(__dirname, 'source/images') },
+          { from: path.join(__dirname, 'source/humans.txt') },
+          { from: path.join(__dirname, 'source/browserconfig.xml') },
+          { from: path.join(__dirname, 'source/manifest.webmanifest') },
+        ],
+      }),
     ],
     optimization: {
       splitChunks: {
@@ -101,7 +112,6 @@ module.exports = async (_, env) => {
       },
       minimizer: [
         new TerserWebpackPlugin({
-          sourceMap: isProd,
           terserOptions: {
             compress: {
               inline: 1,
@@ -117,11 +127,7 @@ module.exports = async (_, env) => {
       ],
     },
     node: {
-      console: false,
       global: true,
-      process: false,
-      Buffer: false,
-      setImmediate: false,
     },
     devServer: {
       hot: false,

@@ -16,9 +16,13 @@ async function installingWorker(registration) {
   }
 
   return new Promise((resolve) => {
-    registration.addEventListener('updatefound', () => resolve(registration.installing), {
-      once: true,
-    });
+    registration.addEventListener(
+      'updatefound',
+      () => resolve(registration.installing),
+      {
+        once: true,
+      }
+    );
   });
 }
 
@@ -39,7 +43,7 @@ async function updateReady(registration) {
   });
 }
 
-export default async function offliner(showSnack) {
+export default async function offliner() {
   if (process.env.NODE_ENV === 'production') {
     navigator.serviceWorker.register('/sw.js');
   }
@@ -50,7 +54,6 @@ export default async function offliner(showSnack) {
   navigator.serviceWorker.addEventListener('controllerchange', async () => {
     // Is it the first install?
     if (!hasController) {
-      showSnack('Ready to work offline', { timeout: 10000 });
       return;
     }
 
@@ -72,12 +75,5 @@ export default async function offliner(showSnack) {
   // Look for updates
   await updateReady(reg);
 
-  // Ask the user if they want to update.
-  const result = await showSnack('Update available', {
-    actions: ['reload', 'dismiss'],
-  });
-
-  // Tell the waiting worker to activate, this will change the controller and cause a reload (see
-  // 'controllerchange')
-  if (result === 'reload') skipWaiting();
+  skipWaiting();
 }

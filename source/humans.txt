@@ -1,13 +1,13 @@
 /* TEAM */
 Name: Patrik Elfström
-Title: Front-end Developer
+Title: Full Stack Developer
 Twitter: patrikelfstrom
 Mail: me at patrikelfstrom.se
 Location: Gothenburg, Sweden
 
 /* SITE */
 Description: Patrik Elfström
-Updated: 2018-11-28
+Updated: 2021-05-12
 Repository: https://github.com/PatrikElfstrom/patrikelfstrom.se
 
 # humanstxt.org/
