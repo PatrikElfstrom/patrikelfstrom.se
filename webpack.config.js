@@ -80,7 +80,7 @@ module.exports = async (_, env) => {
       new HtmlWebpackPlugin({
         template: 'source/index.ejs',
         templateParameters: {
-          host: 'http://127.0.0.1:8080',
+          host: 'https://patrikelfstrom.se',
           structuredData,
         },
         minify: {
@@ -107,6 +107,7 @@ module.exports = async (_, env) => {
       }),
     ],
     optimization: {
+      usedExports: true,
       splitChunks: {
         chunks: 'all',
       },
