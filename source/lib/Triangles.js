@@ -1,12 +1,15 @@
 import { Renderer, BatchRenderer } from '@pixi/core';
+import * as PIXI from '@pixi/core';
 import { Application } from '@pixi/app';
 import { Container } from '@pixi/display';
 import { EventEmitter } from '@pixi/utils';
 import { TickerPlugin } from '@pixi/ticker';
+import { install } from '@pixi/unsafe-eval';
 import { debounce } from 'lodash-es';
 import Triangle from './Triangle';
 import { randomHslGenerator, hslToHex, randomNumber } from './colors';
 
+install(PIXI);
 Renderer.registerPlugin('batch', BatchRenderer);
 Application.registerPlugin(TickerPlugin);
 
