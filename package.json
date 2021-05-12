@@ -32,6 +32,7 @@
     "@pixi/math": "^6.0.4",
     "@pixi/sprite": "^6.0.4",
     "@pixi/ticker": "^6.0.4",
+    "@pixi/unsafe-eval": "^6.0.4",
     "@pixi/utils": "^6.0.4",
     "babel-plugin-react-css-modules": "^3.4.2",
     "color-convert": "^2.0.1",
