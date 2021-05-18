@@ -1,22 +1,24 @@
 import { Polygon, Point } from '@pixi/math';
 import { Graphics } from '@pixi/graphics';
-import { Sprite } from '@pixi/sprite';
 import { SCALE_MODES } from '@pixi/constants';
+import { Renderer, RenderTexture } from '@pixi/core';
+import { Sprite as PixiSprite } from '@pixi/sprite';
+import type { Sprite, TriangleSize } from '../../types';
 
-export default class Triangle {
-  polygon;
+export class Triangle {
+  polygon!: Polygon;
 
-  graphics;
+  graphics!: Graphics;
 
-  texture;
+  texture!: RenderTexture;
 
-  sprite;
+  sprite!: Sprite;
 
-  width;
+  width!: number;
 
-  height;
+  height!: number;
 
-  constructor(size) {
+  constructor(size: number) {
     const { width, height } = Triangle.calculateSize(size);
     this.polygon = Triangle.createPolygon({ width, height });
 
@@ -24,21 +26,17 @@ export default class Triangle {
     this.height = height;
   }
 
-  static calculateSize(width) {
+  static calculateSize(width: number): TriangleSize {
     const height = Math.round(Math.sqrt(width ** 2 - (width / 2) ** 2));
 
     return { width, height };
   }
 
-  static createPolygon({ width, height }) {
-    return new Polygon([
-      new Point(0, height),
-      new Point(width / 2, 0),
-      new Point(width, height),
-    ]);
+  static createPolygon({ width, height }: TriangleSize): Polygon {
+    return new Polygon([new Point(0, height), new Point(width / 2, 0), new Point(width, height)]);
   }
 
-  generateGraphics(color) {
+  generateGraphics(color: number): Graphics {
     const graphics = new Graphics();
 
     // Defringe edges
@@ -51,15 +49,12 @@ export default class Triangle {
     return graphics;
   }
 
-  static generateTexture(graphics, renderer) {
+  static generateTexture(graphics: Graphics, renderer: Renderer): RenderTexture {
     return renderer.generateTexture(graphics, SCALE_MODES.LINEAR, 2);
   }
 
-  createSprite(texture) {
-    const sprite = Sprite.from(texture);
-
-    // Make sprite interactive
-    sprite.interactive = true;
+  createSprite(texture: RenderTexture): Sprite {
+    const sprite = PixiSprite.from(texture) as Sprite;
 
     // Rotate 90 deg
     sprite.rotation = Math.PI / 2;
@@ -84,7 +79,7 @@ export default class Triangle {
     return sprite;
   }
 
-  calculateSpriteHitArea() {
+  calculateSpriteHitArea(): Polygon {
     return new Polygon([
       new Point(-this.width / 2, this.height / 2),
       new Point(0, -this.height / 2),

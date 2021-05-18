@@ -7,7 +7,7 @@ Location: Gothenburg, Sweden
 
 /* SITE */
 Description: Patrik Elfström
-Updated: 2021-05-12
+Last update: 2021-05-15
 Repository: https://github.com/PatrikElfstrom/patrikelfstrom.se
 
 # humanstxt.org/
