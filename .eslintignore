@@ -3,3 +3,6 @@ build
 coverage
 .firebase
 .DS_Store
+old
+.eslintrc.js
+webpack.config.js

@@ -6,35 +6,38 @@ import { EventEmitter } from '@pixi/utils';
 import { TickerPlugin } from '@pixi/ticker';
 import { install } from '@pixi/unsafe-eval';
 import { debounce } from 'lodash-es';
-import Triangle from './Triangle';
-import { randomHslGenerator, hslToHex, randomNumber } from './colors';
+
+import { randomHslGenerator, hslToHex, randomNumber } from '../../helpers/colors';
+import { Triangle } from './Triangle';
+
+import { Textures, TriangleRenderCallback, Positions, TrianglesOptions, Sprite } from '../../types';
 
 install(PIXI);
 Renderer.registerPlugin('batch', BatchRenderer);
 Application.registerPlugin(TickerPlugin);
 
-export default class Triangles extends Application {
-  trianglePositions = [];
+export class TriangleGrid extends Application {
+  trianglePositions: Positions[] = [];
 
-  logoTrianglePositions = [];
+  logoTrianglePositions: Positions[] = [];
 
-  triangles = [];
+  triangles: Sprite[] = [];
 
-  triangle;
+  triangle: Triangle;
 
-  size;
+  size!: number;
 
-  trianglesPerRow;
+  trianglesPerRow!: number;
 
-  trianglesPerColumn;
+  trianglesPerColumn!: number;
 
-  container;
+  container: Container;
 
-  textures = {};
+  textures: Textures = {};
 
-  events;
+  events: EventEmitter;
 
-  constructor(options) {
+  constructor(options: TrianglesOptions) {
     super(options);
 
     this.events = new EventEmitter();
@@ -52,24 +55,22 @@ export default class Triangles extends Application {
     window.addEventListener('resize', debounce(this.generateTriangles, 100));
   }
 
-  generateTriangles = () => {
+  generateTriangles = (): void => {
     // Remove existing children so we don't get duplicates
     this.container.removeChildren();
 
-    ({
-      trianglesPerRow: this.trianglesPerRow,
-      trianglesPerColumn: this.trianglesPerColumn,
-    } = this.calculateNumberOfTriangles());
+    ({ trianglesPerRow: this.trianglesPerRow, trianglesPerColumn: this.trianglesPerColumn } =
+      this.calculateNumberOfTriangles());
 
     this.trianglePositions = this.calculateTrianglePositions();
     this.logoTrianglePositions = this.calculateLogoTrianglePositions();
 
     this.triangles = this.renderTriangles(({ color, positions, delay }) => {
       if (
-        this.logoTrianglePositions.find(
+        this.logoTrianglePositions.some(
           (trianglePosition) =>
-            trianglePosition.grid.x === positions.grid.x &&
-            trianglePosition.grid.y === positions.grid.y
+            trianglePosition?.grid?.x === positions?.grid?.x &&
+            trianglePosition?.grid?.y === positions?.grid?.y,
         )
       ) {
         delay = randomNumber(500, 2000);
@@ -79,23 +80,25 @@ export default class Triangles extends Application {
       return { color, positions, delay };
     });
 
-    this.triangles.forEach((triangle) => {
+    for (const triangle of this.triangles) {
       this.container.addChild(triangle);
-    });
+    }
   };
 
-  calculateNumberOfTriangles() {
+  calculateNumberOfTriangles(): {
+    trianglesPerRow: number;
+    trianglesPerColumn: number;
+  } {
     const trianglesPerRow = Math.ceil(this.screen.width / this.triangle.height);
 
     // Divide by half since each triangle interlock
     // add one since we see the next row
-    const trianglesPerColumn =
-      Math.ceil(this.screen.height / (this.triangle.width / 2)) + 1;
+    const trianglesPerColumn = Math.ceil(this.screen.height / (this.triangle.width / 2)) + 1;
 
     return { trianglesPerRow, trianglesPerColumn };
   }
 
-  calculateLogoTrianglePositions() {
+  calculateLogoTrianglePositions(): Positions[] {
     // Calculate the center position and reduce by one since we start at 0
     let positionX = Math.ceil(this.trianglesPerRow / 2) - 1;
     let positionY = Math.floor(this.trianglesPerColumn / 2) - 1;
@@ -108,9 +111,9 @@ export default class Triangles extends Application {
     // (The first should always be one row below)
     const centerPosition = this.trianglePositions.find(
       (position) =>
-        position.grid.y >= positionY &&
-        position.grid.x === positionX &&
-        position.scale.y === -1
+        position?.grid?.y >= positionY &&
+        position?.grid?.x === positionX &&
+        position?.scale?.y === -1,
     );
 
     // assign the center position
@@ -162,7 +165,7 @@ export default class Triangles extends Application {
       { y: 4, x: -1 },
     ];
 
-    const trianglePositions = triangles.map((triangle) => {
+    return triangles.map((triangle) => {
       const xIndex = positionX + triangle.x;
       const yIndex = positionY + triangle.y;
       let xPixel = xIndex * this.triangle.height;
@@ -174,10 +177,7 @@ export default class Triangles extends Application {
       // Flip every even column in every odd row
       // And flip every odd column in every even row
       const yScale =
-        (yIndex % 2 === 0 && xIndex % 2 === 1) ||
-        (yIndex % 2 === 1 && xIndex % 2 === 0)
-          ? -1
-          : 1;
+        (yIndex % 2 === 0 && xIndex % 2 === 1) || (yIndex % 2 === 1 && xIndex % 2 === 0) ? -1 : 1;
 
       return {
         grid: { x: xIndex, y: yIndex },
@@ -188,16 +188,14 @@ export default class Triangles extends Application {
         scale: { x: 1, y: yScale },
       };
     });
-
-    return trianglePositions;
   }
 
-  calculateTrianglePositions() {
+  calculateTrianglePositions(): Positions[] {
     const trianglePositions = [];
 
     for (let xIndex = 0; xIndex < this.trianglesPerRow; xIndex += 1) {
       for (let yIndex = 0; yIndex < this.trianglesPerColumn; yIndex += 1) {
-        const position = {
+        const position: Positions = {
           grid: { x: xIndex, y: yIndex },
           pixel: { x: 0, y: 0 },
           scale: { x: 1, y: 1 },
@@ -228,8 +226,8 @@ export default class Triangles extends Application {
     return trianglePositions;
   }
 
-  renderTriangles(triangleRenderCallback) {
-    const triangles = this.trianglePositions.map((trianglePosition) => {
+  renderTriangles(triangleRenderCallback?: TriangleRenderCallback): Sprite[] {
+    return this.trianglePositions.map((trianglePosition) => {
       const hexColor = hslToHex(randomHslGenerator());
       const visibilityDelay = randomNumber(0, 500);
 
@@ -249,7 +247,7 @@ export default class Triangles extends Application {
       // Only generate if no texture with the same color has been generated
       if (!Object.prototype.hasOwnProperty.call(this.textures, color)) {
         const graphics = this.triangle.generateGraphics(color);
-        const texture = Triangle.generateTexture(graphics, this.renderer);
+        const texture = Triangle.generateTexture(graphics, this.renderer as Renderer);
 
         this.textures[color] = texture;
       }
@@ -289,7 +287,5 @@ export default class Triangles extends Application {
 
       return sprite;
     });
-
-    return triangles;
   }
 }

@@ -1,144 +1,148 @@
 const path = require('path');
 const webpack = require('webpack');
-const TerserWebpackPlugin = require('terser-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const WorkboxPlugin = require('workbox-webpack-plugin');
-const structuredData = require('./structuredData.json');
+const CopyPlugin = require('copy-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin');
+const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
-module.exports = async (_, env) => {
-  const isProd = env.mode === 'production';
+module.exports = () => {
+  const isEnvDevelopment = process.env.NODE_ENV !== 'production';
+  const isEnvProduction = process.env.NODE_ENV === 'production';
 
   return {
-    mode: isProd ? 'production' : 'development',
-    entry: ['regenerator-runtime/runtime', './source/index.jsx'],
-    devtool: isProd ? 'source-map' : 'inline-source-map',
-    stats: isProd ? 'minimal' : 'normal',
+    mode: process.env.NODE_ENV || 'development',
+    devtool: isEnvProduction ? false : 'inline-source-map',
+    entry: path.resolve(__dirname, './source/index.tsx'),
     output: {
-      filename: isProd ? '[name].[chunkhash:5].js' : '[name].js',
-      chunkFilename: '[name].[chunkhash:5].js',
-      path: path.join(__dirname, './dist'),
-      publicPath: '/',
-      globalObject: 'self',
+      path: path.resolve(__dirname, 'build'),
+      pathinfo: isEnvDevelopment,
+      filename: isEnvProduction
+        ? 'static/js/[name].[contenthash:8].js'
+        : 'static/js/[name].bundle.js',
+      chunkFilename: isEnvProduction
+        ? 'static/js/[name].[contenthash:8].chunk.js'
+        : 'static/js/[name].chunk.js',
+      globalObject: 'this',
     },
-    resolve: {
-      modules: ['source', 'node_modules'],
-      extensions: ['.js', '.jsx', '.json', '.css'],
-    },
-    module: {
-      rules: [
-        {
-          test: /\.(jsx|js)$/,
-          exclude: /node_modules/,
-          loader: 'babel-loader',
-        },
-        {
-          test: /\.css$/,
-          use: [
-            {
-              loader: 'style-loader',
-            },
-            {
-              loader: 'css-loader',
-              options: {
-                modules: true,
-                // localIdentName: isProd
-                //   ? '[hash:base64:5]'
-                //   : '[local]__[hash:base64:5]',
-                importLoaders: 1,
-                sourceMap: true,
-              },
-            },
-          ],
-        },
-        {
-          test: /\.(xml|txt|webmanifest|png|ico|svg)$/,
-          loader: 'file-loader',
-          options: {
-            context: path.resolve(__dirname, './source'),
-            name: '[path][name].[ext]',
-          },
-        },
-        {
-          test: /\.(html)$/,
-          loader: 'html-loader',
-          options: {
-            interpolate: true,
-            attrs: ['link:href'],
-          },
-        },
-      ],
-    },
-    plugins: [
-      new CleanWebpackPlugin({
-        cleanOnceBeforeBuildPatterns: ['dist'],
-      }),
-
-      () => isProd && new webpack.optimize.SplitChunksPlugin({}),
-
-      new HtmlWebpackPlugin({
-        template: 'source/index.ejs',
-        templateParameters: {
-          host: 'https://patrikelfstrom.se',
-          structuredData,
-        },
-        minify: {
-          collapseWhitespace: true,
-          removeComments: true,
-          removeRedundantAttributes: true,
-          removeScriptTypeAttributes: true,
-          removeStyleLinkTypeAttributes: true,
-          useShortDoctype: true,
-        },
-      }),
-      new WorkboxPlugin.GenerateSW({
-        swDest: 'sw.js',
-        clientsClaim: true,
-        skipWaiting: true,
-      }),
-      new CopyWebpackPlugin({
-        patterns: [
-          { from: path.join(__dirname, 'source/images') },
-          { from: path.join(__dirname, 'source/humans.txt') },
-          { from: path.join(__dirname, 'source/browserconfig.xml') },
-          { from: path.join(__dirname, 'source/manifest.webmanifest') },
-        ],
-      }),
-    ],
     optimization: {
-      usedExports: true,
-      splitChunks: {
-        chunks: 'all',
-      },
+      minimize: isEnvProduction,
       minimizer: [
-        new TerserWebpackPlugin({
+        new TerserPlugin({
           terserOptions: {
+            parse: {
+              ecma: 8,
+            },
             compress: {
-              inline: 1,
+              ecma: 5,
+              warnings: false,
+              comparisons: false,
+              inline: 2,
             },
             mangle: {
               safari10: true,
             },
             output: {
-              safari10: true,
+              ecma: 5,
+              comments: false,
+              ascii_only: true,
             },
           },
         }),
       ],
-    },
-    node: {
-      global: true,
-    },
-    devServer: {
-      hot: false,
-      inline: false,
-      port: 3000,
-      historyApiFallback: true,
-      proxy: {
-        '/api': 'http://localhost:8080',
-        cookieDomainRewrite: 'localhost',
+      splitChunks: {
+        chunks: 'all',
       },
+      runtimeChunk: true,
+    },
+    resolve: {
+      extensions: ['.js', '.tsx', '.ts'],
+    },
+    module: {
+      strictExportPresence: true,
+      rules: [
+        {
+          test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
+          loader: 'url-loader',
+          options: {
+            limit: 10000,
+            name: 'static/media/[name].[hash:8].[ext]',
+          },
+        },
+        // Process application JS with Babel.
+        {
+          test: /\.(ts|tsx)$/,
+          include: path.resolve(__dirname, 'source'),
+          loader: 'babel-loader',
+          options: {
+            // customize: 'babel-preset-react-app/webpack-overrides',
+            plugins: [isEnvDevelopment && 'react-refresh/babel'].filter(Boolean),
+            cacheDirectory: true,
+            cacheCompression: false,
+            compact: isEnvProduction,
+          },
+        },
+        // Process any JS outside of the app with Babel.
+        {
+          test: /\.(js|mjs)$/,
+          exclude: /@babel(?:\/|\\{1,2})runtime/,
+          loader: 'babel-loader',
+          options: {
+            babelrc: false,
+            configFile: false,
+            compact: false,
+            cacheDirectory: true,
+            cacheCompression: false,
+            sourceMaps: isEnvDevelopment,
+            inputSourceMap: isEnvDevelopment,
+          },
+        },
+        {
+          exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
+          loader: 'file-loader',
+          options: {
+            name: 'static/media/[name].[hash:8].[ext]',
+          },
+        },
+      ],
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        template: path.join(__dirname, 'source', 'index.html'),
+        minify: isEnvProduction && {
+          removeComments: true,
+          collapseWhitespace: true,
+          removeRedundantAttributes: true,
+          useShortDoctype: true,
+          removeEmptyAttributes: true,
+          removeStyleLinkTypeAttributes: true,
+          keepClosingSlash: true,
+          minifyJS: true,
+          minifyCSS: true,
+          minifyURLs: true,
+        },
+      }),
+      isEnvProduction && new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime-.+[.]js/]),
+      new ModuleNotFoundPlugin(path.resolve(__dirname, '.')),
+      isEnvDevelopment && new webpack.HotModuleReplacementPlugin(),
+      isEnvDevelopment && new ReactRefreshWebpackPlugin(),
+      isEnvDevelopment && new CaseSensitivePathsPlugin(),
+      new ForkTsCheckerWebpackPlugin({
+        async: isEnvDevelopment,
+      }),
+      new ESLintPlugin({
+        extensions: ['js', 'mjs', 'jsx', 'ts', 'tsx'],
+      }),
+      new CopyPlugin({
+        patterns: [{ from: 'source/static' }],
+      }),
+    ].filter(Boolean),
+    devServer: {
+      contentBase: path.resolve(__dirname, 'source'),
     },
   };
 };
