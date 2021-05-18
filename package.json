@@ -8,7 +8,7 @@
   "private": true,
   "sideEffects": false,
   "scripts": {
-    "build": "export NODE_ENV=production rimraf build && webpack --config=webpack.config.js",
+    "build": "export NODE_ENV=production rimraf dist && webpack --config=webpack.config.js",
     "start": "webpack serve --config=webpack.config.js",
     "lint": "npx eslint .",
     "firebase": "firebase"

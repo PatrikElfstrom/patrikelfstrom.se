@@ -19,7 +19,7 @@ module.exports = () => {
     devtool: isEnvProduction ? false : 'inline-source-map',
     entry: path.resolve(__dirname, './source/index.tsx'),
     output: {
-      path: path.resolve(__dirname, 'build'),
+      path: path.resolve(__dirname, 'dist'),
       pathinfo: isEnvDevelopment,
       filename: isEnvProduction
         ? 'static/js/[name].[contenthash:8].js'
