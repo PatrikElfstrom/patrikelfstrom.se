@@ -21,7 +21,7 @@ export class TriangleGrid extends Application {
 
   logoTrianglePositions: Positions[] = [];
 
-  triangles: Sprite[] = [];
+  triangles: Promise<Sprite>[] = [];
 
   triangle: Triangle;
 
@@ -40,6 +40,8 @@ export class TriangleGrid extends Application {
   constructor(options: TrianglesOptions) {
     super(options);
 
+    this.ticker.stop();
+
     this.events = new EventEmitter();
 
     this.triangle = new Triangle(options.size);
@@ -56,6 +58,8 @@ export class TriangleGrid extends Application {
   }
 
   generateTriangles = (): void => {
+    this.ticker.start();
+
     // Remove existing children so we don't get duplicates
     this.container.removeChildren();
 
@@ -80,9 +84,12 @@ export class TriangleGrid extends Application {
       return { color, positions, delay };
     });
 
-    for (const triangle of this.triangles) {
-      this.container.addChild(triangle);
-    }
+    // Stop ticker when all triangles are done
+    Promise.all(this.triangles)
+      .then(() => this.ticker.stop())
+      .catch((error) => {
+        throw error;
+      });
   };
 
   calculateNumberOfTriangles(): {
@@ -226,66 +233,70 @@ export class TriangleGrid extends Application {
     return trianglePositions;
   }
 
-  renderTriangles(triangleRenderCallback?: TriangleRenderCallback): Sprite[] {
-    return this.trianglePositions.map((trianglePosition) => {
-      const hexColor = hslToHex(randomHslGenerator());
-      const visibilityDelay = randomNumber(0, 500);
+  renderTriangles(triangleRenderCallback?: TriangleRenderCallback): Promise<Sprite>[] {
+    return this.trianglePositions.map(
+      (trianglePosition) =>
+        new Promise((resolve) => {
+          const hexColor = hslToHex(randomHslGenerator());
+          const visibilityDelay = randomNumber(0, 500);
 
-      const { color, positions, delay } =
-        typeof triangleRenderCallback === 'function'
-          ? triangleRenderCallback({
-              color: hexColor,
-              positions: trianglePosition,
-              delay: visibilityDelay,
-            })
-          : {
-              color: hexColor,
-              positions: trianglePosition,
-              delay: visibilityDelay,
-            };
+          const { color, positions, delay } =
+            typeof triangleRenderCallback === 'function'
+              ? triangleRenderCallback({
+                  color: hexColor,
+                  positions: trianglePosition,
+                  delay: visibilityDelay,
+                })
+              : {
+                  color: hexColor,
+                  positions: trianglePosition,
+                  delay: visibilityDelay,
+                };
 
-      // Only generate if no texture with the same color has been generated
-      if (!Object.prototype.hasOwnProperty.call(this.textures, color)) {
-        const graphics = this.triangle.generateGraphics(color);
-        const texture = Triangle.generateTexture(graphics, this.renderer as Renderer);
+          // Only generate if no texture with the same color has been generated
+          if (!Object.prototype.hasOwnProperty.call(this.textures, color)) {
+            const graphics = this.triangle.generateGraphics(color);
+            const texture = Triangle.generateTexture(graphics, this.renderer as Renderer);
 
-        this.textures[color] = texture;
-      }
-
-      const sprite = this.triangle.createSprite(this.textures[color]);
-
-      sprite.scale.y = positions.scale.y;
-      sprite.scale.x = positions.scale.x;
-      sprite.x = positions.pixel.x;
-      sprite.y = positions.pixel.y;
-
-      const spriteTargetAlpha = 1;
-
-      const transitionSpeed = 1; // In seconds
-      const fps = 60;
-      const transitionSpeedPerFrame = (fps * transitionSpeed) / 1000;
-
-      const showSprite = () => {
-        sprite.age = Date.now() - sprite.added;
-
-        // Delay sprite
-        if (sprite.age >= delay) {
-          // Remove ticker if sprite is fully visible
-          if (sprite.alpha < spriteTargetAlpha) {
-            sprite.alpha += transitionSpeedPerFrame * this.ticker.deltaTime;
-          } else {
-            this.ticker.remove(showSprite);
+            this.textures[color] = texture;
           }
-        }
-      };
 
-      this.ticker.add(showSprite);
+          const sprite = this.triangle.createSprite(this.textures[color]);
 
-      sprite.on('added', () => {
-        sprite.added = Date.now();
-      });
+          sprite.scale.y = positions.scale.y;
+          sprite.scale.x = positions.scale.x;
+          sprite.x = positions.pixel.x;
+          sprite.y = positions.pixel.y;
 
-      return sprite;
-    });
+          const spriteTargetAlpha = 1;
+
+          const transitionSpeed = 1; // In seconds
+          const fps = 60;
+          const transitionSpeedPerFrame = (fps * transitionSpeed) / 1000;
+
+          const showSprite = () => {
+            sprite.age = Date.now() - sprite.added;
+
+            // Delay sprite
+            if (sprite.age >= delay) {
+              // Remove ticker if sprite is fully visible
+              if (sprite.alpha < spriteTargetAlpha) {
+                sprite.alpha += transitionSpeedPerFrame * this.ticker.deltaTime;
+              } else {
+                this.ticker.remove(showSprite);
+                resolve(sprite);
+              }
+            }
+          };
+
+          this.ticker.add(showSprite);
+
+          sprite.on('added', () => {
+            sprite.added = Date.now();
+          });
+
+          this.container.addChild(sprite);
+        }),
+    );
   }
 }
