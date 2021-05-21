@@ -37,6 +37,8 @@ export class TriangleGrid extends Application {
 
   events: EventEmitter;
 
+  renderQueue: boolean[] = [];
+
   constructor(options: TrianglesOptions) {
     super(options);
 
@@ -58,6 +60,7 @@ export class TriangleGrid extends Application {
   }
 
   generateTriangles = (): void => {
+    this.renderQueue.push(true);
     this.ticker.start();
 
     // Remove existing children so we don't get duplicates
@@ -86,7 +89,9 @@ export class TriangleGrid extends Application {
 
     // Stop ticker when all triangles are done
     Promise.all(this.triangles)
-      .then(() => this.ticker.stop())
+      .then(() => this.renderQueue.pop())
+      // stop ticker if there is nothing rendering
+      .then(() => this.renderQueue.length <= 0 && this.ticker.stop())
       .catch((error) => {
         throw error;
       });
