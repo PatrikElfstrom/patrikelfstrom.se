@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Home /> should match snapshot 1`] = `
+<div
+  className="css-18av587"
+>
+  <header
+    className="css-tu93bp"
+  >
+    <h1
+      className="css-w7dlu6"
+    >
+      Patrik Elfström
+    </h1>
+  </header>
+  <main
+    className="css-tu93bp"
+    id="site"
+  >
+    <a
+      className="css-10u4lz0"
+      href="mailto:me@patrikelfstrom.se"
+    >
+      me@patrikelfstrom.se
+    </a>
+  </main>
+  <footer
+    className="css-tu93bp"
+  >
+    <small
+      className="css-gt9hiz"
+    >
+      Web Developer
+    </small>
+  </footer>
+</div>
+`;

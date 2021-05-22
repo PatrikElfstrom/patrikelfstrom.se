@@ -10,8 +10,12 @@
   "scripts": {
     "build": "export NODE_ENV=production rimraf dist && webpack --config=webpack.config.js",
     "start": "webpack serve --config=webpack.config.js",
+    "serve": "serve -s dist -l 3001 --config ../serve.json",
     "lint": "npx eslint .",
-    "firebase": "firebase"
+    "firebase": "firebase",
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "watch": "jest --watch"
   },
   "repository": {
     "type": "git",
@@ -19,6 +23,14 @@
   },
   "bugs": {
     "url": "https://github.com/PatrikElfstrom/patrikelfstrom.se/issues"
+  },
+  "jest": {
+    "setupFiles": [
+      "jest-canvas-mock"
+    ],
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/(?!lodash-es)"
+    ]
   },
   "dependencies": {
     "@emotion/react": "^11.4.0",
@@ -53,6 +65,7 @@
     "@types/react": "^17.0.5",
     "@types/react-dom": "^17.0.5",
     "@types/react-helmet": "^6.1.1",
+    "@types/react-test-renderer": "^17.0.1",
     "@typescript-eslint/eslint-plugin": "^4.23.0",
     "babel-loader": "^8.2.2",
     "case-sensitive-paths-webpack-plugin": "^2.4.0",
@@ -73,8 +86,11 @@
     "fork-ts-checker-webpack-plugin": "^4.1.6",
     "html-webpack-plugin": "^5.3.1",
     "jest": "^26.6.3",
+    "jest-canvas-mock": "^2.3.1",
     "prettier": "^2.3.0",
     "react-dev-utils": "^11.0.4",
+    "react-test-renderer": "^17.0.2",
+    "serve": "^11.3.2",
     "terser-webpack-plugin": "^5.1.2",
     "ts-loader": "^9.1.2",
     "webpack": "^5.37.0",
