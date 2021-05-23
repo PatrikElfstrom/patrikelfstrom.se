@@ -43,7 +43,6 @@
     "@pixi/math": "^6.0.4",
     "@pixi/sprite": "^6.0.4",
     "@pixi/ticker": "^6.0.4",
-    "@pixi/unsafe-eval": "^6.0.4",
     "@pixi/utils": "^6.0.4",
     "color-convert": "^2.0.1",
     "lodash-es": "^4.17.21",

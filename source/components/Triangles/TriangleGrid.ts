@@ -4,16 +4,12 @@ import { Application } from '@pixi/app';
 import { Container } from '@pixi/display';
 import { EventEmitter } from '@pixi/utils';
 import { TickerPlugin } from '@pixi/ticker';
-import { install } from '@pixi/unsafe-eval';
 import { debounce } from 'lodash-es';
-
 import { randomHslGenerator, hslToHex, randomNumber } from '../../helpers/colors';
 import { Triangle } from './Triangle';
-
 import { Textures, TriangleRenderCallback, Positions, TrianglesOptions, Sprite } from '../../types';
 
-install(PIXI);
-Renderer.registerPlugin('batch', BatchRenderer);
+PIXI.Renderer.registerPlugin('batch', BatchRenderer);
 Application.registerPlugin(TickerPlugin);
 
 export class TriangleGrid extends Application {
