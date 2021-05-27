@@ -6,3 +6,4 @@ coverage
 old
 eslint.config.js
 webpack.config.js
+babel.config.js
