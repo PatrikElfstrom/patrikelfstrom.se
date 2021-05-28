@@ -65,21 +65,12 @@ module.exports = () => {
     module: {
       strictExportPresence: true,
       rules: [
-        {
-          test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-          loader: 'url-loader',
-          options: {
-            limit: 10000,
-            name: 'static/media/[name].[hash:8].[ext]',
-          },
-        },
         // Process application JS with Babel.
         {
           test: /\.(ts|tsx)$/,
           include: path.resolve(__dirname, 'source'),
           loader: 'babel-loader',
           options: {
-            // customize: 'babel-preset-react-app/webpack-overrides',
             plugins: [isEnvDevelopment && 'react-refresh/babel'].filter(Boolean),
             cacheDirectory: true,
             cacheCompression: false,
@@ -99,13 +90,6 @@ module.exports = () => {
             cacheCompression: false,
             sourceMaps: isEnvDevelopment,
             inputSourceMap: isEnvDevelopment,
-          },
-        },
-        {
-          exclude: [/\.(js|mjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/],
-          loader: 'file-loader',
-          options: {
-            name: 'static/media/[name].[hash:8].[ext]',
           },
         },
       ],
