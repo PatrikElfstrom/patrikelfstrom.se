@@ -5,9 +5,10 @@ import { Container } from '@pixi/display';
 import { EventEmitter } from '@pixi/utils';
 import { TickerPlugin } from '@pixi/ticker';
 import { debounce } from 'lodash-es';
-import { randomHslGenerator, hslToHex, randomNumber } from '../../helpers/colors';
+import { randomHslGenerator, hslToHex } from '../../helpers/colors';
 import { Triangle } from './Triangle';
 import { Textures, TriangleRenderCallback, Positions, TrianglesOptions, Sprite } from '../../types';
+import { randomNumber } from '../../helpers/numbers';
 
 PIXI.Renderer.registerPlugin('batch', BatchRenderer);
 Application.registerPlugin(TickerPlugin);

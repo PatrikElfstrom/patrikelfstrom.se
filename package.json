@@ -11,7 +11,7 @@
     "build": "export NODE_ENV=production && rimraf dist && webpack --config=webpack.config.js",
     "start": "webpack serve --config=webpack.config.js",
     "serve": "serve -s dist -l 3001 --config ../serve.json",
-    "lint": "npx eslint .",
+    "lint": "tsc --noEmit && eslint source/**/*.{ts,tsx}",
     "firebase": "firebase",
     "test": "jest",
     "coverage": "jest --coverage",

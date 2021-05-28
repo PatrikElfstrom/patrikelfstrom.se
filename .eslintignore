@@ -4,6 +4,6 @@ coverage
 .firebase
 .DS_Store
 old
-eslint.config.js
+.eslintrc.js
 webpack.config.js
 babel.config.js
