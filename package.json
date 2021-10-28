@@ -41,7 +41,7 @@
     "@pixi/core": "^6.0.4",
     "@pixi/display": "^6.0.4",
     "@pixi/graphics": "^6.0.4",
-    "@pixi/math": "^6.0.4",
+    "@pixi/math": "^6.1.3",
     "@pixi/sprite": "^6.0.4",
     "@pixi/ticker": "^6.0.4",
     "@pixi/utils": "^6.0.4",
