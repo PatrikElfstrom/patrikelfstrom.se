@@ -1,13 +1,14 @@
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'jest', 'promise', 'unicorn', 'jsx-a11y', 'sonarjs'],
+  plugins: ['@typescript-eslint', 'promise', 'unicorn', 'jsx-a11y', 'sonarjs'],
   extends: [
+    'plugin:import/recommended',
+    'plugin:import/typescript',
+    'plugin:react/recommended',
     'airbnb-typescript',
-    'airbnb/hooks',
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
-    'plugin:jest/all',
     'plugin:promise/recommended',
     'plugin:unicorn/recommended',
     'plugin:jsx-a11y/strict',
@@ -65,4 +66,11 @@ module.exports = {
       },
     ],
   },
+  overrides: [
+    {
+      files: ['source/**/*.test.(ts|tsx)'],
+      plugins: ['jest'],
+      extends: ['plugin:jest/all'],
+    },
+  ],
 };

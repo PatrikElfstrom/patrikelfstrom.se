@@ -126,7 +126,7 @@ module.exports = () => {
       }),
     ].filter(Boolean),
     devServer: {
-      contentBase: path.resolve(__dirname, 'source'),
+      static: path.resolve(__dirname, 'source'),
     },
   };
 };

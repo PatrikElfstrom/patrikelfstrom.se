@@ -1,4 +1,4 @@
-import { Renderer, BatchRenderer } from '@pixi/core';
+import { Renderer, BatchRenderer, RenderTexture } from '@pixi/core';
 import { Application } from '@pixi/app';
 import { Container } from '@pixi/display';
 import { EventEmitter } from '@pixi/utils';
@@ -290,7 +290,7 @@ export class TriangleGrid extends Application {
             this.textures[color] = texture;
           }
 
-          const sprite = this.triangle.createSprite(this.textures[color]);
+          const sprite = this.triangle.createSprite(this.textures[color] as RenderTexture);
 
           sprite.scale.y = positions.scale.y;
           sprite.scale.x = positions.scale.x;
