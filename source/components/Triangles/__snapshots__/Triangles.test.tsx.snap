@@ -1,3 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<Triangles /> should match snapshot 1`] = `<canvas />`;
+exports[`<Triangles /> should match snapshot 1`] = `
+<canvas
+  className="css-tzhz8d-Triangles--Canvas ee7bsyw0"
+/>
+`;
