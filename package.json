@@ -12,7 +12,6 @@
     "start": "webpack serve --config=webpack.config.js",
     "serve": "serve -s dist -l 3001 --config ../serve.json",
     "lint": "tsc --noEmit && eslint source/**/*.{ts,tsx}",
-    "firebase": "firebase",
     "test": "jest",
     "coverage": "jest --coverage",
     "watch": "jest --watch"
@@ -41,6 +40,7 @@
     "@pixi/core": "^6.0.4",
     "@pixi/display": "^6.0.4",
     "@pixi/graphics": "^6.0.4",
+    "@pixi/graphics-smooth": "^0.0.27",
     "@pixi/math": "^6.0.4",
     "@pixi/sprite": "^6.0.4",
     "@pixi/ticker": "^6.0.4",

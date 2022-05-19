@@ -1,7 +1,0 @@
-{
-  "projects": {
-    "develop": "patrikelfstrom-dev",
-    "production": "patrikelfstrom-prod",
-    "default": "patrikelfstrom-prod"
-  }
-}

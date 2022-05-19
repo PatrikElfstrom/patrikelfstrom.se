@@ -1,9 +1,10 @@
 import { Polygon, Point } from '@pixi/math';
-import { Graphics } from '@pixi/graphics';
-import { SCALE_MODES } from '@pixi/constants';
+import { settings, SmoothGraphics as Graphics } from '@pixi/graphics-smooth';
 import { Renderer, RenderTexture } from '@pixi/core';
 import { Sprite as PixiSprite } from '@pixi/sprite';
 import type { Sprite, TriangleSize } from '../../types';
+
+settings.PIXEL_LINE = 1;
 
 export class Triangle {
   polygon!: Polygon;
@@ -40,9 +41,14 @@ export class Triangle {
     const graphics = new Graphics();
 
     // Defringe edges
-    graphics.lineStyle(1, color, 1, 0.5, true);
+    graphics.lineStyle({
+      color,
+      width: 1,
+      alignment: 0.5,
+      alpha: 1,
+    });
 
-    graphics.beginFill(color);
+    graphics.beginFill(color, 1, true);
     graphics.drawShape(this.polygon);
     graphics.endFill();
 
@@ -50,7 +56,7 @@ export class Triangle {
   }
 
   static generateTexture(graphics: Graphics, renderer: Renderer): RenderTexture {
-    return renderer.generateTexture(graphics, SCALE_MODES.LINEAR, 2);
+    return renderer.generateTexture(graphics);
   }
 
   createSprite(texture: RenderTexture): Sprite {

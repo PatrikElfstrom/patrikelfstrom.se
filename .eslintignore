@@ -1,7 +1,6 @@
 node_modules
 dist
 coverage
-.firebase
 .DS_Store
 old
 .eslintrc.js

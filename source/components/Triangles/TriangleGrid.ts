@@ -1,5 +1,4 @@
 import { Renderer, BatchRenderer } from '@pixi/core';
-import * as PIXI from '@pixi/core';
 import { Application } from '@pixi/app';
 import { Container } from '@pixi/display';
 import { EventEmitter } from '@pixi/utils';
@@ -10,7 +9,7 @@ import { Triangle } from './Triangle';
 import { Textures, TriangleRenderCallback, Positions, TrianglesOptions, Sprite } from '../../types';
 import { randomNumber } from '../../helpers/numbers';
 
-PIXI.Renderer.registerPlugin('batch', BatchRenderer);
+Renderer.registerPlugin('batch', BatchRenderer);
 Application.registerPlugin(TickerPlugin);
 
 export class TriangleGrid extends Application {
@@ -35,6 +34,8 @@ export class TriangleGrid extends Application {
   events: EventEmitter;
 
   renderQueue: boolean[] = [];
+
+  centerPosition!: Positions;
 
   constructor(options: TrianglesOptions) {
     super(options);
@@ -66,7 +67,20 @@ export class TriangleGrid extends Application {
     ({ trianglesPerRow: this.trianglesPerRow, trianglesPerColumn: this.trianglesPerColumn } =
       this.calculateNumberOfTriangles());
 
-    this.trianglePositions = this.calculateTrianglePositions();
+    let isLeftPointing = false;
+    let offsets = 0;
+    while (!isLeftPointing) {
+      this.trianglePositions = this.calculateTrianglePositions();
+      this.centerPosition = this.getCenterPosition(
+        this.trianglesPerRow,
+        this.trianglesPerColumn,
+        offsets,
+      );
+
+      isLeftPointing = this.centerPosition?.scale.y === -1;
+      offsets += 1;
+    }
+
     this.logoTrianglePositions = this.calculateLogoTrianglePositions();
 
     this.triangles = this.renderTriangles(({ color, positions, delay }) => {
@@ -98,7 +112,15 @@ export class TriangleGrid extends Application {
     trianglesPerRow: number;
     trianglesPerColumn: number;
   } {
-    const trianglesPerRow = Math.ceil(this.screen.width / this.triangle.height);
+    const initialTrianglesPerRow = this.screen.width / this.triangle.height;
+
+    // Round to nearest even number
+    const trianglesPerRow = Math.round(initialTrianglesPerRow / 2) * 2;
+
+    const triangleHeight = this.screen.width / trianglesPerRow;
+
+    // Set new triangle height
+    this.triangle.height = triangleHeight;
 
     // Divide by half since each triangle interlock
     // add one since we see the next row
@@ -107,29 +129,34 @@ export class TriangleGrid extends Application {
     return { trianglesPerRow, trianglesPerColumn };
   }
 
-  calculateLogoTrianglePositions(): Positions[] {
-    // Calculate the center position and reduce by one since we start at 0
-    let positionX = Math.ceil(this.trianglesPerRow / 2) - 1;
-    let positionY = Math.floor(this.trianglesPerColumn / 2) - 1;
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  getCenterPosition(trianglesPerRow: number, trianglesPerColumn: number, offset: number) {
+    // Calculate the center position
+    const positionX = Math.round(trianglesPerRow / 2);
+    let positionY = Math.round(trianglesPerColumn / 2);
 
     // Move the center position up a bit
     const goldenRatio = (1 + Math.sqrt(5)) / 2;
-    positionY = Math.ceil(positionY / goldenRatio);
+    positionY = Math.ceil(positionY / goldenRatio) - offset;
 
-    // Find the first triangle that is left pointing starting at the center
-    // (The first should always be one row below)
     const centerPosition = this.trianglePositions.find(
-      (position) =>
-        position?.grid?.y >= positionY &&
-        position?.grid?.x === positionX &&
-        position?.scale?.y === -1,
+      (position) => position?.grid?.y >= positionY && position?.grid?.x === positionX,
     );
 
-    // assign the center position
-    if (centerPosition) {
-      positionX = centerPosition.grid.x;
-      positionY = centerPosition.grid.y;
+    if (!centerPosition) {
+      throw new Error('Could not find center position');
     }
+
+    return centerPosition;
+  }
+
+  calculateLogoTrianglePositions(): Positions[] {
+    if (!this.centerPosition) {
+      throw new Error('No center position');
+    }
+
+    const positionX = this.centerPosition.grid.x;
+    const positionY = this.centerPosition.grid.y;
 
     // The logo design
     const triangles = [
