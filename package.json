@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@emotion/cache": "^11.7.1",
-    "@emotion/react": "^11.9.0",
+    "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.8.1",
     "@pixi/app": "^6.3.2",
     "@pixi/core": "^6.3.2",
