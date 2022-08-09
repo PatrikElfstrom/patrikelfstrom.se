@@ -43,7 +43,7 @@
     "@pixi/math": "^6.3.2",
     "@pixi/sprite": "^6.3.2",
     "@pixi/ticker": "^6.3.2",
-    "@pixi/utils": "^6.3.2",
+    "@pixi/utils": "^6.5.1",
     "color-convert": "^2.0.1",
     "lodash-es": "^4.17.21",
     "react": "^18.2.0",
