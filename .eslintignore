@@ -1,8 +1,0 @@
-node_modules
-dist
-coverage
-.DS_Store
-old
-.eslintrc.js
-webpack.config.js
-babel.config.js

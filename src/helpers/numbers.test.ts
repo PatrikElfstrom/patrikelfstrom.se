@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { randomNumber } from './numbers';
 
 describe('number', () => {

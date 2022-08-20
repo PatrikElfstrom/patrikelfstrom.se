@@ -1,15 +1,8 @@
-import styled from '@emotion/styled';
 import { ReactElement, useEffect, useRef } from 'react';
-import { TriangleGrid } from './TriangleGrid';
+import { TriangleGrid } from './triangleGrid';
+import './style.css';
 
-const Canvas = styled.canvas({
-  position: 'fixed',
-  left: 0,
-  top: 0,
-  zIndex: -1,
-});
-
-export const Triangles = (): ReactElement => {
+export default function Triangles(): ReactElement {
   const canvas = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -23,10 +16,7 @@ export const Triangles = (): ReactElement => {
         autoDensity: true,
       });
     }
-  }, []);
+  }, [canvas]);
 
-  return <Canvas ref={canvas} />;
-};
-
-// eslint-disable-next-line import/no-default-export
-export default Triangles;
+  return <canvas className="canvas" ref={canvas} />;
+}
