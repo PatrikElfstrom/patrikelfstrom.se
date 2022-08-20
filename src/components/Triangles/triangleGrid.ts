@@ -1,16 +1,23 @@
-import { Renderer, BatchRenderer, RenderTexture } from '@pixi/core';
+import { BatchRenderer, Renderer, RenderTexture } from '@pixi/core';
 import { Application } from '@pixi/app';
 import { Container } from '@pixi/display';
 import { EventEmitter } from '@pixi/utils';
 import { TickerPlugin } from '@pixi/ticker';
-import { debounce } from 'lodash-es';
+import { extensions } from '@pixi/extensions';
+import debounce from 'debounce-fn';
 import { randomHslGenerator, hslToHex } from '../../helpers/colors';
-import { Triangle } from './Triangle';
-import { Textures, TriangleRenderCallback, Positions, TrianglesOptions, Sprite } from '../../types';
+import { Triangle } from './triangle';
+import type {
+  Textures,
+  TriangleRenderCallback,
+  Positions,
+  TrianglesOptions,
+  Sprite,
+} from '../../types';
 import { randomNumber } from '../../helpers/numbers';
 
-Renderer.registerPlugin('batch', BatchRenderer);
-Application.registerPlugin(TickerPlugin);
+extensions.add(BatchRenderer);
+extensions.add(TickerPlugin);
 
 export class TriangleGrid extends Application {
   trianglePositions: Positions[] = [];
@@ -54,7 +61,7 @@ export class TriangleGrid extends Application {
 
     this.generateTriangles();
 
-    window.addEventListener('resize', debounce(this.generateTriangles, 100));
+    window.addEventListener('resize', debounce(this.generateTriangles, { wait: 100 }));
   }
 
   generateTriangles = (): void => {
@@ -320,7 +327,8 @@ export class TriangleGrid extends Application {
 
           this.ticker.add(showSprite);
 
-          sprite.on('added', () => {
+          // TODO: Property 'on' does not exist on type 'Sprite'.
+          (sprite as any).on('added', () => {
             sprite.added = Date.now();
           });
 

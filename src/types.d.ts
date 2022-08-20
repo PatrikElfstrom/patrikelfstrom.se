@@ -1,6 +1,6 @@
 import type { Sprite as PixiSprite } from '@pixi/sprite';
 import type { Polygon } from '@pixi/math';
-import type { IRendererOptions } from '@pixi/core';
+import type { IRendererOptions, RenderTexture } from '@pixi/core';
 
 export interface Sprite extends PixiSprite {
   age: number;

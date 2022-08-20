@@ -1,6 +1,6 @@
 import { Polygon, Point } from '@pixi/math';
 import { settings, SmoothGraphics as Graphics } from '@pixi/graphics-smooth';
-import { Renderer, RenderTexture } from '@pixi/core';
+import type { Renderer, RenderTexture } from '@pixi/core';
 import { Sprite as PixiSprite } from '@pixi/sprite';
 import type { Sprite, TriangleSize } from '../../types';
 

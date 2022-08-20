@@ -1,0 +1,66 @@
+---
+import Layout from '../layouts/Layout.astro';
+import githubMark from '../assets/githubMark.svg';
+---
+
+<Layout title="Patrik Elfström">
+  <div class="wrapper">
+    <header>
+      <h1 class="heading">Patrik Elfström</h1>
+    </header>
+    <main id="site">
+      <a class="link" href="mailto:me@patrikelfstrom.se">me@patrikelfstrom.se</a>
+    </main>
+    <footer>
+      <small>Web Developer</small>
+    </footer>
+    <aside>
+      <a class="link" href="https://github.com/PatrikElfstrom" target="_blank" rel="noreferrer">
+        <img src={githubMark} alt="Github Profile" />
+      </a>
+    </aside>
+  </div>
+</Layout>
+
+<style>
+  .wrapper {
+    height: 40vh;
+    display: flex;
+    flex-direction: column;
+    align-self: flex-end;
+  }
+
+  .wrapper ::selection {
+    background-color: #092b3f;
+    color: #fff;
+  }
+
+  .heading {
+    color: #fff;
+    margin: 0;
+  }
+
+  .link {
+    opacity: 0.75;
+    color: #fff;
+    text-decoration: none;
+    transition: opacity 200ms ease-in-out;
+  }
+
+  .link:hover {
+    opacity: 1;
+  }
+
+  aside {
+    margin-top: auto;
+    margin-bottom: 45px;
+  }
+
+  aside a {
+    opacity: 0.3;
+  }
+
+  small {
+    color: #949494;
+  }
+</style>

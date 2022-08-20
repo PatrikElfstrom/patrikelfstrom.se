@@ -1,7 +1,4 @@
-import { ReactElement } from 'react';
-
-export const GithubMark = (): ReactElement => (
-  <svg width="45" height="43" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="45" height="43" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -9,4 +6,3 @@ export const GithubMark = (): ReactElement => (
       fill="#fff"
     />
   </svg>
-);
