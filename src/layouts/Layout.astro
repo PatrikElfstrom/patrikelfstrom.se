@@ -15,7 +15,7 @@ const structuredDataString = JSON.stringify(structuredData);
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="overflow-hidden">
   <head>
     <meta charset="utf8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -48,30 +48,10 @@ const structuredDataString = JSON.stringify(structuredData);
     <script type="application/ld+json" set:html={structuredDataString}></script>
   </head>
 
-  <body>
-    <div class="wrapper">
+  <body class="h-screen m-0 bg-patrik-gray font-sans">
+    <div class="flex justify-center items-center text-center h-screen">
       <slot />
     </div>
     <Triangles client:load />
-    <style>
-      html {
-        overflow: hidden;
-      }
-
-      body {
-        height: 100vh;
-        margin: 0;
-        background-color: #212121;
-        font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue, sans-serif;
-      }
-
-      .wrapper {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        height: 100vh;
-      }
-    </style>
   </body>
 </html>

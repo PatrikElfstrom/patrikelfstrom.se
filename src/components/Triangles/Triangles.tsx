@@ -1,6 +1,5 @@
 import { ReactElement, useEffect, useRef } from 'react';
 import { TriangleGrid } from './triangleGrid';
-import './style.css';
 
 export default function Triangles(): ReactElement {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -18,5 +17,5 @@ export default function Triangles(): ReactElement {
     }
   }, [canvas]);
 
-  return <canvas className="canvas" ref={canvas} />;
+  return <canvas className="fixed left-0 top-0 z-n1" ref={canvas} />;
 }
