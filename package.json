@@ -56,7 +56,7 @@
     "@pixi/math": "^6.5.1",
     "@pixi/sprite": "^6.5.1",
     "@pixi/ticker": "^6.5.1",
-    "@pixi/utils": "^6.5.1",
+    "@pixi/utils": "^6.5.2",
     "debounce-fn": "^5.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
