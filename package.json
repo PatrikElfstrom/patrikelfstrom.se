@@ -55,7 +55,7 @@
     "@pixi/graphics-smooth": "^0.0.30",
     "@pixi/math": "^6.5.1",
     "@pixi/sprite": "^6.5.1",
-    "@pixi/ticker": "^6.5.1",
+    "@pixi/ticker": "^6.5.2",
     "@pixi/utils": "^6.5.1",
     "debounce-fn": "^5.1.2",
     "react": "^18.2.0",
