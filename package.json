@@ -31,7 +31,7 @@
     "@astrojs/react": "^1.1.0",
     "@astrojs/tailwind": "^1.0.0",
     "@types/color-convert": "^2.0.0",
-    "@types/react": "^18.0.17",
+    "@types/react": "^18.0.22",
     "@types/react-dom": "^18.0.6",
     "@typescript-eslint/eslint-plugin": "^5.35.1",
     "@typescript-eslint/parser": "^5.36.0",
