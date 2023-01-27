@@ -28,7 +28,7 @@
     "url": "https://github.com/PatrikElfstrom/patrikelfstrom.se/issues"
   },
   "devDependencies": {
-    "@astrojs/react": "^1.1.0",
+    "@astrojs/react": "^2.0.1",
     "@astrojs/tailwind": "^1.0.0",
     "@types/color-convert": "^2.0.0",
     "@types/react": "^18.0.17",
