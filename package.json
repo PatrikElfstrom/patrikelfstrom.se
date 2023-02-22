@@ -52,7 +52,7 @@
     "@pixi/app": "^6.5.2",
     "@pixi/core": "^6.5.2",
     "@pixi/display": "^6.5.2",
-    "@pixi/graphics-smooth": "^0.0.30",
+    "@pixi/graphics-smooth": "^1.0.0",
     "@pixi/math": "^6.5.2",
     "@pixi/sprite": "^6.5.2",
     "@pixi/ticker": "^6.5.2",
