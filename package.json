@@ -49,14 +49,14 @@
     "vitest": "^0.29.2"
   },
   "dependencies": {
-    "@pixi/app": "^7.1.2",
-    "@pixi/core": "^7.1.2",
-    "@pixi/display": "^7.1.2",
+    "@pixi/app": "^7.1.4",
+    "@pixi/core": "^7.1.4",
+    "@pixi/display": "^7.1.4",
     "@pixi/graphics-smooth": "^1.0.0",
-    "@pixi/math": "^7.1.2",
-    "@pixi/sprite": "^7.1.2",
-    "@pixi/ticker": "^7.1.2",
-    "@pixi/utils": "^7.1.2",
+    "@pixi/math": "^7.1.4",
+    "@pixi/sprite": "^7.1.4",
+    "@pixi/ticker": "^7.1.4",
+    "@pixi/utils": "^7.1.4",
     "debounce-fn": "^5.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
