@@ -51,7 +51,7 @@
   "dependencies": {
     "@pixi/app": "^7.1.2",
     "@pixi/core": "^7.1.2",
-    "@pixi/display": "^7.1.2",
+    "@pixi/display": "^7.1.4",
     "@pixi/graphics-smooth": "^1.0.0",
     "@pixi/math": "^7.1.2",
     "@pixi/sprite": "^7.1.2",
