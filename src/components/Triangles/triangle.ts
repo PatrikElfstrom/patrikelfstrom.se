@@ -1,23 +1,19 @@
-import { Polygon, Point } from '@pixi/math';
-import { settings, SmoothGraphics as Graphics } from '@pixi/graphics-smooth';
-import type { Renderer, RenderTexture } from '@pixi/core';
-import { Sprite as PixiSprite } from '@pixi/sprite';
-import type { Sprite, TriangleSize } from '../../types';
-
-settings.PIXEL_LINE = 1;
+import {
+  Graphics,
+  Point,
+  Polygon,
+  type Renderer,
+  type Texture,
+  Sprite as PixiSprite,
+} from 'pixi.js';
+import type { TriangleSize } from './types';
 
 export class Triangle {
-  polygon!: Polygon;
+  readonly polygon: Polygon;
 
-  graphics!: Graphics;
+  width: number;
 
-  texture!: RenderTexture;
-
-  sprite!: Sprite;
-
-  width!: number;
-
-  height!: number;
+  height: number;
 
   constructor(size: number) {
     const { width, height } = Triangle.calculateSize(size);
@@ -40,27 +36,29 @@ export class Triangle {
   generateGraphics(color: number): Graphics {
     const graphics = new Graphics();
 
-    // Defringe edges
-    graphics.lineStyle({
+    graphics.poly(this.polygon.points);
+    graphics.fill({ color, alpha: 1 });
+    graphics.stroke({
       color,
       width: 1,
       alignment: 0.5,
       alpha: 1,
     });
 
-    graphics.beginFill(color, 1, true);
-    graphics.drawShape(this.polygon);
-    graphics.endFill();
-
     return graphics;
   }
 
-  static generateTexture(graphics: Graphics, renderer: Renderer): RenderTexture {
-    return renderer.generateTexture(graphics);
+  createTexture(color: number, renderer: Renderer): Texture {
+    const graphics = this.generateGraphics(color);
+    const texture = renderer.generateTexture(graphics);
+
+    graphics.destroy();
+
+    return texture;
   }
 
-  createSprite(texture: RenderTexture): Sprite {
-    const sprite = PixiSprite.from(texture) as Sprite;
+  createSprite(texture: Texture): PixiSprite {
+    const sprite = PixiSprite.from(texture);
 
     // Rotate 90 deg
     sprite.rotation = Math.PI / 2;
@@ -69,8 +67,7 @@ export class Triangle {
     sprite.anchor.set(0.5);
 
     // Reset position because of change to anchor
-    sprite.x += this.height / 2;
-    sprite.y += this.width / 2;
+    sprite.position.set(this.height / 2, this.width / 2);
 
     // Since we changed the anchor
     // We need to recalculate the hit area
@@ -78,9 +75,6 @@ export class Triangle {
 
     // Hide as default
     sprite.alpha = 0;
-
-    // Set default age
-    sprite.age = 0;
 
     return sprite;
   }

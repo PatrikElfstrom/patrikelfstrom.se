@@ -1,16 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import githubMark from '../assets/githubMark.svg';
+import GithubMark from '../assets/githubMark.svg';
 ---
 
 <Layout title="Patrik Elfström">
-  <div class="h-40v flex flex-col self-end selection:bg-patrik-blue selection:text-white">
+  <div class="selection:bg-patrik-blue flex h-[40vh] flex-col self-end selection:text-white">
     <header class="m-2">
-      <h1 class="m-0 text-white text-4xl font-bold">Patrik Elfström</h1>
+      <h1 class="m-0 text-4xl font-bold text-white">Patrik Elfström</h1>
     </header>
     <main id="site" class="m-2">
       <a
-        class="opacity-75 text-white no-underline transition-opacity duration-200 ease-in-out hover:opacity-100"
+        class="text-white no-underline opacity-75 transition-opacity duration-200 ease-in-out hover:opacity-100"
         href="mailto:me@patrikelfstrom.se"
         >me@patrikelfstrom.se
       </a>
@@ -20,12 +20,13 @@ import githubMark from '../assets/githubMark.svg';
     </footer>
     <aside class="m-2 mt-auto mb-11 text-center">
       <a
-        class="opacity-30 text-white no-underline transition-opacity duration-200 ease-in-out hover:opacity-100"
+        class="text-white no-underline opacity-30 transition-opacity duration-200 ease-in-out hover:opacity-100"
         href="https://github.com/PatrikElfstrom"
         target="_blank"
         rel="noreferrer"
+        aria-label="Github Profile"
       >
-        <img class="inline" src={githubMark} alt="Github Profile" />
+        <GithubMark class="inline" />
       </a>
     </aside>
   </div>

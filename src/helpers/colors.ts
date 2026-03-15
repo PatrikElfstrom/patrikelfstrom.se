@@ -1,5 +1,4 @@
-import * as colorConvert from 'color-convert';
-import type { HSL } from 'color-convert/conversions';
+import colorConvert, { type HSL } from 'color-convert';
 import { randomNumber } from './numbers';
 
 interface Hsl {

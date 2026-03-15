@@ -3,18 +3,16 @@ export interface Properties {
   title: string;
 }
 
+import '../styles/global.css';
 import structuredData from '../../public/structuredData.json';
-import Triangles from '../components/Triangles/Triangles';
+import Triangles from '../components/Triangles/Triangles.astro';
 
 const { title } = Astro.props as Properties;
-
-const { origin } =
-  typeof window !== 'undefined' ? window.location : { origin: 'https://patrikelfstrom.se' };
 
 const structuredDataString = JSON.stringify(structuredData);
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="overflow-hidden">
   <head>
     <meta charset="utf-8" />
@@ -23,13 +21,13 @@ const structuredDataString = JSON.stringify(structuredData);
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={structuredData.mainEntityOfPage.description} />
-    <link rel="canonical" href={origin} />
+    <link rel="canonical" href="https://patrikelfstrom.se" />
 
     <meta property="og:image" content="/images/icons/patrikelfstrom-logo-1200x1200.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="1200" />
     <meta property="og:image:alt" content="Patrik Elfström logotype" />
-    <meta property="og:url" content={origin} />
+    <meta property="og:url" content="https://patrikelfstrom.se" />
     <meta property="og:type" content="website" />
 
     <meta name="twitter:card" content="summary" />
@@ -45,13 +43,13 @@ const structuredDataString = JSON.stringify(structuredData);
 
     <link rel="author" href="/humans.txt" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <script type="application/ld+json" set:html={structuredDataString}></script>
+    <script type="application/ld+json" is:inline set:html={structuredDataString} />
   </head>
 
-  <body class="h-screen m-0 bg-patrik-gray font-sans">
-    <div class="flex justify-center items-center text-center h-screen">
+  <body class="bg-patrik-gray m-0 h-screen font-sans">
+    <div class="flex h-screen items-center justify-center text-center">
       <slot />
     </div>
-    <Triangles client:load />
+    <Triangles />
   </body>
 </html>

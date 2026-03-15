@@ -1,17 +1,3 @@
-import type { Sprite as PixiSprite } from '@pixi/sprite';
-import type { Polygon } from '@pixi/math';
-import type { IRendererOptions, RenderTexture } from '@pixi/core';
-
-export interface Sprite extends PixiSprite {
-  age: number;
-  added: number;
-  hitArea: Polygon;
-}
-
-export interface Textures {
-  [key: number]: RenderTexture;
-}
-
 export interface Position {
   x: number;
   y: number;
@@ -33,8 +19,11 @@ export interface TriangleRenderCallback {
 
 export type TriangleSize = { width: number; height: number };
 
-export interface TrianglesOptions extends IRendererOptions {
+export interface TrianglesOptions {
   backgroundColor: number;
-  resizeTo?: HTMLElement;
+  resizeTo?: HTMLElement | Window;
   size: number;
+  canvas: HTMLCanvasElement;
+  resolution?: number;
+  autoDensity?: boolean;
 }

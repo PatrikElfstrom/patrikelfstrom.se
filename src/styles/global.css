@@ -1,0 +1,6 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-patrik-gray: #212121;
+  --color-patrik-blue: #092b3f;
+}

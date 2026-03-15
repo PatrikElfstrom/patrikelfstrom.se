@@ -1,339 +1,366 @@
-import { BatchRenderer, Renderer, RenderTexture } from '@pixi/core';
-import { Application } from '@pixi/app';
-import { Container } from '@pixi/display';
-import { EventEmitter } from '@pixi/utils';
-import { TickerPlugin } from '@pixi/ticker';
-import { extensions } from '@pixi/extensions';
 import debounce from 'debounce-fn';
 import { randomHslGenerator, hslToHex } from '../../helpers/colors';
 import { Triangle } from './triangle';
 import type {
-  Textures,
   TriangleRenderCallback,
   Positions,
   TrianglesOptions,
-  Sprite,
-} from '../../types';
+} from './types';
 import { randomNumber } from '../../helpers/numbers';
+import { Application, Container, type Rectangle, type Texture, type Ticker } from 'pixi.js';
 
-extensions.add(BatchRenderer);
-extensions.add(TickerPlugin);
+const GOLDEN_RATIO = (1 + Math.sqrt(5)) / 2;
+const FADE_ALPHA_STEP = 0.06;
+const LOGO_TRIANGLE_OFFSETS: ReadonlyArray<{ x: number; y: number }> = [
+  { y: 0, x: 0 },
+  { y: -1, x: 0 },
+  { y: -1, x: -1 },
+  { y: 0, x: -1 },
+  { y: 1, x: -1 },
+  { y: 1, x: 0 },
+  { y: -5, x: -1 },
+  { y: -4, x: -1 },
+  { y: -4, x: -2 },
+  { y: -3, x: -2 },
+  { y: -3, x: -3 },
+  { y: -2, x: -3 },
+  { y: -1, x: -3 },
+  { y: 0, x: -3 },
+  { y: 1, x: -3 },
+  { y: 2, x: -3 },
+  { y: 3, x: -3 },
+  { y: -5, x: 0 },
+  { y: -4, x: 0 },
+  { y: -4, x: 1 },
+  { y: -3, x: 1 },
+  { y: -3, x: 2 },
+  { y: -2, x: 2 },
+  { y: -1, x: 2 },
+  { y: 0, x: 2 },
+  { y: 1, x: 2 },
+  { y: 2, x: 2 },
+  { y: 3, x: 2 },
+  { y: 3, x: 1 },
+  { y: 4, x: 1 },
+  { y: 4, x: 0 },
+  { y: 5, x: 0 },
+  { y: 5, x: -1 },
+  { y: 4, x: -1 },
+];
 
-export class TriangleGrid extends Application {
-  trianglePositions: Positions[] = [];
-
-  logoTrianglePositions: Positions[] = [];
-
-  triangles: Promise<Sprite>[] = [];
-
+interface TriangleGridState {
+  app: Application;
   triangle: Triangle;
-
-  size!: number;
-
-  trianglesPerRow!: number;
-
-  trianglesPerColumn!: number;
-
   container: Container;
+  textureCache: Map<number, Texture>;
+  activeAnimations: Set<(ticker: Ticker) => void>;
+  pendingAnimations: number;
+  generation: number;
+}
 
-  textures: Textures = {};
+export async function createTriangleGrid(options: TrianglesOptions): Promise<void> {
+  const app = new Application();
 
-  events: EventEmitter;
+  await app.init({
+    canvas: options.canvas,
+    backgroundColor: options.backgroundColor,
+    antialias: true,
+    autoStart: false,
+    resolution: options.resolution ?? window.devicePixelRatio ?? 1,
+    autoDensity: options.autoDensity ?? true,
+    preference: 'webgl',
+    resizeTo: options.resizeTo ?? window,
+  });
 
-  renderQueue: boolean[] = [];
+  const triangle = new Triangle(options.size);
+  const container = new Container();
+  app.stage.addChild(container);
 
-  centerPosition!: Positions;
-
-  constructor(options: TrianglesOptions) {
-    super(options);
-
-    this.ticker.stop();
-
-    this.events = new EventEmitter();
-
-    this.triangle = new Triangle(options.size);
-
-    // Create a container
-    this.container = new Container();
-
-    // Add container to stage
-    this.stage.addChild(this.container);
-
-    this.generateTriangles();
-
-    window.addEventListener('resize', debounce(this.generateTriangles, { wait: 100 }));
-  }
-
-  generateTriangles = (): void => {
-    this.renderQueue.push(true);
-    this.ticker.start();
-
-    // Remove existing children so we don't get duplicates
-    this.container.removeChildren();
-
-    ({ trianglesPerRow: this.trianglesPerRow, trianglesPerColumn: this.trianglesPerColumn } =
-      this.calculateNumberOfTriangles());
-
-    let isLeftPointing = false;
-    let offsets = 0;
-    while (!isLeftPointing) {
-      this.trianglePositions = this.calculateTrianglePositions();
-      this.centerPosition = this.getCenterPosition(
-        this.trianglesPerRow,
-        this.trianglesPerColumn,
-        offsets,
-      );
-
-      isLeftPointing = this.centerPosition?.scale.y === -1;
-      offsets += 1;
-    }
-
-    this.logoTrianglePositions = this.calculateLogoTrianglePositions();
-
-    this.triangles = this.renderTriangles(({ color, positions, delay }) => {
-      if (
-        this.logoTrianglePositions.some(
-          (trianglePosition) =>
-            trianglePosition?.grid?.x === positions?.grid?.x &&
-            trianglePosition?.grid?.y === positions?.grid?.y,
-        )
-      ) {
-        delay = randomNumber(500, 2000);
-        color = hslToHex(randomHslGenerator(200, 100, 30, 0, 10));
-      }
-
-      return { color, positions, delay };
-    });
-
-    // Stop ticker when all triangles are done
-    Promise.all(this.triangles)
-      .then(() => this.renderQueue.pop())
-      // stop ticker if there is nothing rendering
-      .then(() => this.renderQueue.length <= 0 && this.ticker.stop())
-      .catch((error) => {
-        throw error;
-      });
+  const state: TriangleGridState = {
+    app,
+    triangle,
+    container,
+    textureCache: new Map(),
+    activeAnimations: new Set(),
+    pendingAnimations: 0,
+    generation: 0,
   };
 
-  calculateNumberOfTriangles(): {
-    trianglesPerRow: number;
-    trianglesPerColumn: number;
-  } {
-    const initialTrianglesPerRow = this.screen.width / this.triangle.height;
+  const regenerate = () => renderTriangleGrid(state);
 
-    // Round to nearest even number
-    const trianglesPerRow = Math.round(initialTrianglesPerRow / 2) * 2;
+  const scheduleRegenerate = debounce(regenerate, {
+    wait: 50,
+  });
+  window.addEventListener('resize', scheduleRegenerate);
 
-    const triangleHeight = this.screen.width / trianglesPerRow;
+  regenerate();
 
-    // Set new triangle height
-    this.triangle.height = triangleHeight;
+}
 
-    // Divide by half since each triangle interlock
-    // add one since we see the next row
-    const trianglesPerColumn = Math.ceil(this.screen.height / (this.triangle.width / 2)) + 1;
+const renderTriangleGrid = (state: TriangleGridState): void => {
+  state.generation += 1;
 
-    return { trianglesPerRow, trianglesPerColumn };
-  }
+  cancelAnimations(state);
+  clearContainer(state.container);
+  destroyTextures(state.textureCache);
 
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  getCenterPosition(trianglesPerRow: number, trianglesPerColumn: number, offset: number) {
-    // Calculate the center position
-    const positionX = Math.round(trianglesPerRow / 2);
-    let positionY = Math.round(trianglesPerColumn / 2);
+  const { trianglesPerRow, trianglesPerColumn } = calculateNumberOfTriangles(
+    state.app.screen,
+    state.triangle,
+  );
+  const trianglePositions = calculateTrianglePositions(
+    trianglesPerRow,
+    trianglesPerColumn,
+    state.triangle,
+  );
+  let centerPosition: Positions | undefined;
 
-    // Move the center position up a bit
-    const goldenRatio = (1 + Math.sqrt(5)) / 2;
-    positionY = Math.ceil(positionY / goldenRatio) - offset;
-
-    const centerPosition = this.trianglePositions.find(
-      (position) => position?.grid?.y >= positionY && position?.grid?.x === positionX,
+  for (let offset = 0; offset < trianglesPerColumn; offset += 1) {
+    const currentCenterPosition = getCenterPosition(
+      trianglesPerRow,
+      trianglesPerColumn,
+      offset,
+      trianglePositions,
     );
 
-    if (!centerPosition) {
-      throw new Error('Could not find center position');
+    if (currentCenterPosition.scale.y === -1) {
+      centerPosition = currentCenterPosition;
+      break;
+    }
+  }
+
+  if (!centerPosition) {
+    throw new Error('Could not find center position');
+  }
+
+  const logoTrianglePositions = calculateLogoTrianglePositions(centerPosition, state.triangle);
+  const logoTriangleKeys = new Set(
+    logoTrianglePositions.map((position) => `${position.grid.x}:${position.grid.y}`),
+  );
+
+  renderTriangles(state, trianglePositions, state.generation, ({ color, positions, delay }) => {
+    if (logoTriangleKeys.has(`${positions.grid.x}:${positions.grid.y}`)) {
+      return {
+        color: hslToHex(randomHslGenerator(200, 100, 30, 0, 10)),
+        positions,
+        delay: randomNumber(500, 2000),
+      };
     }
 
+    return { color, positions, delay };
+  });
+
+  if (state.pendingAnimations > 0) {
+    state.app.start();
+  } else {
+    state.app.stop();
+  }
+};
+
+const calculateNumberOfTriangles = (
+  screen: Rectangle,
+  triangle: Triangle,
+): {
+  trianglesPerRow: number;
+  trianglesPerColumn: number;
+} => {
+  const initialTrianglesPerRow = screen.width / triangle.height;
+  const trianglesPerRow = Math.round(initialTrianglesPerRow / 2) * 2;
+
+  triangle.height = screen.width / trianglesPerRow;
+
+  // Divide by half since each triangle interlocks.
+  const trianglesPerColumn = Math.ceil(screen.height / (triangle.width / 2)) + 1;
+
+  return { trianglesPerRow, trianglesPerColumn };
+};
+
+const getCenterPosition = (
+  trianglesPerRow: number,
+  trianglesPerColumn: number,
+  offset: number,
+  trianglePositions: Positions[],
+): Positions => {
+  const positionX = Math.round(trianglesPerRow / 2);
+  const middleRow = Math.round(trianglesPerColumn / 2);
+  const positionY = Math.ceil(middleRow / GOLDEN_RATIO) - offset;
+
+  const centerPosition = trianglePositions.find(
+    (position) => position.grid.y >= positionY && position.grid.x === positionX,
+  );
+
+  if (centerPosition) {
     return centerPosition;
   }
 
-  calculateLogoTrianglePositions(): Positions[] {
-    if (!this.centerPosition) {
-      throw new Error('No center position');
-    }
+  throw new Error('Could not find center position');
+};
 
-    const positionX = this.centerPosition.grid.x;
-    const positionY = this.centerPosition.grid.y;
-
-    // The logo design
-    const triangles = [
-      // Center
-      { y: 0, x: 0 },
-      { y: -1, x: 0 },
-      { y: -1, x: -1 },
-      { y: 0, x: -1 },
-      { y: 1, x: -1 },
-      { y: 1, x: 0 },
-
-      // Ring Left
-      { y: -5, x: -1 },
-      { y: -4, x: -1 },
-      { y: -4, x: -2 },
-      { y: -3, x: -2 },
-      { y: -3, x: -3 },
-      { y: -2, x: -3 },
-      { y: -1, x: -3 },
-      { y: 0, x: -3 },
-      { y: 1, x: -3 },
-      { y: 2, x: -3 },
-      { y: 3, x: -3 },
-
-      // Ring right
-      { y: -5, x: 0 },
-      { y: -4, x: 0 },
-      { y: -4, x: 1 },
-      { y: -3, x: 1 },
-      { y: -3, x: 2 },
-      { y: -2, x: 2 },
-      { y: -1, x: 2 },
-      { y: 0, x: 2 },
-      { y: 1, x: 2 },
-      { y: 2, x: 2 },
-      { y: 3, x: 2 },
-      { y: 3, x: 1 },
-      { y: 4, x: 1 },
-      { y: 4, x: 0 },
-      { y: 5, x: 0 },
-      { y: 5, x: -1 },
-      { y: 4, x: -1 },
-    ];
-
-    return triangles.map((triangle) => {
-      const xIndex = positionX + triangle.x;
-      const yIndex = positionY + triangle.y;
-      let xPixel = xIndex * this.triangle.height;
-      const yPixel = (yIndex * this.triangle.width) / 2;
-
-      // Add 50% because of reasons
-      xPixel += this.triangle.height / 2;
-
-      // Flip every even column in every odd row
-      // And flip every odd column in every even row
-      const yScale =
-        (yIndex % 2 === 0 && xIndex % 2 === 1) || (yIndex % 2 === 1 && xIndex % 2 === 0) ? -1 : 1;
-
-      return {
-        grid: { x: xIndex, y: yIndex },
-        pixel: {
-          x: xPixel,
-          y: yPixel,
-        },
-        scale: { x: 1, y: yScale },
-      };
-    });
+const calculateLogoTrianglePositions = (
+  centerPosition: Positions,
+  triangle: Triangle,
+): Positions[] => {
+  if (!centerPosition) {
+    throw new Error('No center position');
   }
 
-  calculateTrianglePositions(): Positions[] {
-    const trianglePositions = [];
+  const positionX = centerPosition.grid.x;
+  const positionY = centerPosition.grid.y;
 
-    for (let xIndex = 0; xIndex < this.trianglesPerRow; xIndex += 1) {
-      for (let yIndex = 0; yIndex < this.trianglesPerColumn; yIndex += 1) {
-        const position: Positions = {
-          grid: { x: xIndex, y: yIndex },
-          pixel: { x: 0, y: 0 },
-          scale: { x: 1, y: 1 },
-        };
+  return LOGO_TRIANGLE_OFFSETS.map(({ x, y }) =>
+    createTrianglePosition(positionX + x, positionY + y, triangle),
+  );
+};
 
-        // Flip every even column in every odd row
-        if (yIndex % 2 === 0 && xIndex % 2 === 1) {
-          position.scale.y = -1;
-        }
+const calculateTrianglePositions = (
+  trianglesPerRow: number,
+  trianglesPerColumn: number,
+  triangle: Triangle,
+): Positions[] => {
+  const trianglePositions: Positions[] = [];
 
-        // Flip every odd column in every even row
-        if (yIndex % 2 === 1 && xIndex % 2 === 0) {
-          position.scale.y = -1;
-        }
-
-        // Move the each row 50% to the right
-        // Since we start from the triangle center
-        position.pixel.x += this.triangle.height / 2;
-
-        // Position triangle
-        position.pixel.x += xIndex * this.triangle.height;
-        position.pixel.y += (yIndex * this.triangle.width) / 2;
-
-        trianglePositions.push(position);
-      }
+  for (let xIndex = 0; xIndex < trianglesPerRow; xIndex += 1) {
+    for (let yIndex = 0; yIndex < trianglesPerColumn; yIndex += 1) {
+      trianglePositions.push(createTrianglePosition(xIndex, yIndex, triangle));
     }
-
-    return trianglePositions;
   }
 
-  renderTriangles(triangleRenderCallback?: TriangleRenderCallback): Promise<Sprite>[] {
-    return this.trianglePositions.map(
-      (trianglePosition) =>
-        new Promise((resolve) => {
-          const hexColor = hslToHex(randomHslGenerator());
-          const visibilityDelay = randomNumber(0, 500);
+  return trianglePositions;
+};
 
-          const { color, positions, delay } =
-            typeof triangleRenderCallback === 'function'
-              ? triangleRenderCallback({
-                  color: hexColor,
-                  positions: trianglePosition,
-                  delay: visibilityDelay,
-                })
-              : {
-                  color: hexColor,
-                  positions: trianglePosition,
-                  delay: visibilityDelay,
-                };
+const createTrianglePosition = (xIndex: number, yIndex: number, triangle: Triangle): Positions => ({
+  grid: { x: xIndex, y: yIndex },
+  pixel: {
+    x: triangle.height / 2 + xIndex * triangle.height,
+    y: (yIndex * triangle.width) / 2,
+  },
+  scale: { x: 1, y: calculateScaleY(xIndex, yIndex) },
+});
 
-          // Only generate if no texture with the same color has been generated
-          if (!Object.prototype.hasOwnProperty.call(this.textures, color)) {
-            const graphics = this.triangle.generateGraphics(color);
-            const texture = Triangle.generateTexture(graphics, this.renderer as Renderer);
+const calculateScaleY = (xIndex: number, yIndex: number): number => {
+  if ((yIndex % 2 === 0 && xIndex % 2 === 1) || (yIndex % 2 === 1 && xIndex % 2 === 0)) {
+    return -1;
+  }
 
-            this.textures[color] = texture;
-          }
+  return 1;
+};
 
-          const sprite = this.triangle.createSprite(this.textures[color] as RenderTexture);
-
-          sprite.scale.y = positions.scale.y;
-          sprite.scale.x = positions.scale.x;
-          sprite.x = positions.pixel.x;
-          sprite.y = positions.pixel.y;
-
-          const spriteTargetAlpha = 1;
-
-          const transitionSpeed = 1; // In seconds
-          const fps = 60;
-          const transitionSpeedPerFrame = (fps * transitionSpeed) / 1000;
-
-          const showSprite = () => {
-            sprite.age = Date.now() - sprite.added;
-
-            // Delay sprite
-            if (sprite.age >= delay) {
-              // Remove ticker if sprite is fully visible
-              if (sprite.alpha < spriteTargetAlpha) {
-                sprite.alpha += transitionSpeedPerFrame * this.ticker.deltaTime;
-              } else {
-                this.ticker.remove(showSprite);
-                resolve(sprite);
-              }
-            }
+const renderTriangles = (
+  state: TriangleGridState,
+  trianglePositions: Positions[],
+  generation: number,
+  triangleRenderCallback?: TriangleRenderCallback,
+): void => {
+  trianglePositions.forEach((trianglePosition) => {
+    const defaultColor = hslToHex(randomHslGenerator());
+    const defaultDelay = randomNumber(0, 500);
+    const { color, positions, delay } =
+      typeof triangleRenderCallback === 'function'
+        ? triangleRenderCallback({
+            color: defaultColor,
+            positions: trianglePosition,
+            delay: defaultDelay,
+          })
+        : {
+            color: defaultColor,
+            positions: trianglePosition,
+            delay: defaultDelay,
           };
+    const texture = getTriangleTexture(state, color);
+    const sprite = state.triangle.createSprite(texture);
 
-          this.ticker.add(showSprite);
+    sprite.scale.set(positions.scale.x, positions.scale.y);
+    sprite.position.set(positions.pixel.x, positions.pixel.y);
 
-          // TODO: Property 'on' does not exist on type 'Sprite'.
-          (sprite as any).on('added', () => {
-            sprite.added = Date.now();
-          });
+    state.container.addChild(sprite);
+    fadeInTriangle(state, sprite, delay, generation);
+  });
+};
 
-          this.container.addChild(sprite);
-        }),
-    );
+const getTriangleTexture = (state: TriangleGridState, color: number): Texture => {
+  const cachedTexture = state.textureCache.get(color);
+
+  if (cachedTexture) {
+    return cachedTexture;
   }
-}
+
+  const texture = state.triangle.createTexture(color, state.app.renderer);
+
+  state.textureCache.set(color, texture);
+
+  return texture;
+};
+
+const fadeInTriangle = (
+  state: TriangleGridState,
+  sprite: Container,
+  delay: number,
+  generation: number,
+): void => {
+  let elapsedMs = 0;
+
+  state.pendingAnimations += 1;
+
+  const tick = (ticker: Ticker): void => {
+    if (generation !== state.generation || sprite.destroyed) {
+      finishAnimation(state, tick, generation);
+      return;
+    }
+
+    elapsedMs += ticker.deltaMS;
+
+    if (elapsedMs < delay) {
+      return;
+    }
+
+    sprite.alpha = Math.min(sprite.alpha + FADE_ALPHA_STEP * ticker.deltaTime, 1);
+
+    if (sprite.alpha >= 1) {
+      finishAnimation(state, tick, generation);
+    }
+  };
+
+  state.activeAnimations.add(tick);
+  state.app.ticker.add(tick);
+};
+
+const finishAnimation = (
+  state: TriangleGridState,
+  tick: (ticker: Ticker) => void,
+  generation: number,
+): void => {
+  if (!state.activeAnimations.delete(tick)) {
+    return;
+  }
+
+  state.app.ticker.remove(tick);
+  state.pendingAnimations = Math.max(0, state.pendingAnimations - 1);
+
+  if (generation === state.generation && state.pendingAnimations === 0) {
+    state.app.stop();
+  }
+};
+
+const cancelAnimations = (state: TriangleGridState): void => {
+  state.activeAnimations.forEach((tick) => {
+    state.app.ticker.remove(tick);
+  });
+
+  state.activeAnimations.clear();
+  state.pendingAnimations = 0;
+  state.app.stop();
+};
+
+const clearContainer = (container: Container): void => {
+  container.removeChildren().forEach((child) => {
+    child.destroy();
+  });
+};
+
+const destroyTextures = (textureCache: Map<number, Texture>): void => {
+  textureCache.forEach((texture) => {
+    texture.destroy(true);
+  });
+
+  textureCache.clear();
+};
