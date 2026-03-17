@@ -28,7 +28,7 @@
     "url": "https://github.com/PatrikElfstrom/patrikelfstrom.se/issues"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.7",
+    "@astrojs/check": "^0.9.8",
     "@tailwindcss/vite": "^4.2.1",
     "astro": "^6.0.4",
     "color-convert": "^3.1.3",
