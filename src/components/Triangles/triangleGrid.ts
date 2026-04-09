@@ -1,11 +1,7 @@
 import debounce from 'debounce-fn';
 import { randomHslGenerator, hslToHex } from '../../helpers/colors';
 import { Triangle } from './triangle';
-import type {
-  TriangleRenderCallback,
-  Positions,
-  TrianglesOptions,
-} from './types';
+import type { TriangleRenderCallback, Positions, TrianglesOptions } from './types';
 import { randomNumber } from '../../helpers/numbers';
 import { Application, Container, type Rectangle, type Texture, type Ticker } from 'pixi.js';
 
@@ -94,7 +90,6 @@ export async function createTriangleGrid(options: TrianglesOptions): Promise<voi
   window.addEventListener('resize', scheduleRegenerate);
 
   regenerate();
-
 }
 
 const renderTriangleGrid = (state: TriangleGridState): void => {
